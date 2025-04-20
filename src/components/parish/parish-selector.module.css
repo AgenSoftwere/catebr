@@ -1,0 +1,122 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .searchContainer {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  
+  .searchIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #94a3b8;
+  }
+  
+  .searchInput {
+    padding-left: 2.5rem;
+  }
+  
+  .parishList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+  
+  .parishItem {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .parishItem:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+  }
+  
+  .parishInfo {
+    flex: 1;
+  }
+  
+  .parishName {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+  
+  .parishLocation {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  
+  .locationIcon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.25rem;
+  }
+  
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+    color: #64748b;
+    gap: 1rem;
+  }
+  
+  .loadingSpinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    color: #ef4444;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .retryButton {
+    margin-top: 0.5rem;
+  }
+  
+  .emptyState {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+    color: #64748b;
+    text-align: center;
+  }
+  

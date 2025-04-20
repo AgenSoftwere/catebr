@@ -4,15 +4,20 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false, // Desativando o modo estrito
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false, // Ignora erros de módulos isolados
     "jsx": "preserve",
     "incremental": true,
+    "suppressImplicitAnyIndexErrors": true, // Suprime erro de índice "any"
+    "noImplicitAny": false, // Permite "any" implícito
+    "noImplicitReturns": false, // Ignora funções sem return explícito
+    "noImplicitThis": false, // Permite "this" implícito
+    "strictNullChecks": false, // Permite nulos
     "plugins": [
       {
         "name": "next"

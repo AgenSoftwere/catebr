@@ -1,0 +1,164 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+  }
+  
+  .content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 420px;
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+  }
+  
+  .backLink {
+    display: flex;
+    align-items: center;
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+  }
+  
+  .backLink:hover {
+    color: #3b82f6;
+  }
+  
+  .backIcon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.5rem;
+  }
+  
+  .header {
+    margin-bottom: 2rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .labelWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .label {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .forgotPassword {
+    font-size: 0.75rem;
+    color: #3b82f6;
+    text-decoration: none;
+  }
+  
+  .forgotPassword:hover {
+    text-decoration: underline;
+  }
+  
+  .inputWrapper {
+    position: relative;
+  }
+  
+  .inputIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #94a3b8;
+  }
+  
+  .input {
+    padding-left: 2.5rem;
+  }
+  
+  .error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: -0.5rem;
+  }
+  
+  .submitButton {
+    margin-top: 0.5rem;
+  }
+  
+  .divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+  }
+  
+  .separator {
+    flex: 1;
+  }
+  
+  .dividerText {
+    padding: 0 1rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+  }
+  
+  .googleButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .googleIcon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .registerLink {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  
+  .registerLink a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .registerLink a:hover {
+    text-decoration: underline;
+  }
+  
