@@ -13,7 +13,6 @@
     "isolatedModules": false, // Ignora erros de módulos isolados
     "jsx": "preserve",
     "incremental": true,
-    "suppressImplicitAnyIndexErrors": true, // Suprime erro de índice "any"
     "noImplicitAny": false, // Permite "any" implícito
     "noImplicitReturns": false, // Ignora funções sem return explícito
     "noImplicitThis": false, // Permite "this" implícito
