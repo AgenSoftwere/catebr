@@ -1,102 +1,158 @@
 "use client"
-
-import { useEffect } from "react"
 import { BottomNav } from "@/components/navigation/bottom-nav"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { User, LogOut, Settings, Bell, Church } from "lucide-react"
+import { User, LogOut, Settings, Bell, Church, UserPlus, LogIn } from "lucide-react"
+import Link from "next/link"
 import styles from "./page.module.css"
 import { VersionBadge } from "@/components/version-badge"
 
 export default function PerfilPage() {
-    const { user, loading, signOut } = useAuth()
-    const router = useRouter()
+  const { user, loading, signOut } = useAuth()
+  const router = useRouter()
 
-    useEffect(() => {
-        if (!loading && !user) {
-            router.push("/auth/o/login")
-        }
-    }, [user, loading, router])
+  const handleSignOut = async () => {
+    await signOut()
+    toast.success("Logout realizado com sucesso", {
+      description: "Você foi desconectado da sua conta.",
+    })
+  }
 
-    const handleSignOut = async () => {
-        await signOut()
-        toast.success("Logout realizado com sucesso", {
-            description: "Você foi desconectado da sua conta.",
-        })
-    }
-
-    if (loading) {
-        return (
-            <div className={styles.loadingContainer}>
-                <div className={styles.loadingSpinner}></div>
-                <p>Carregando perfil...</p>
-            </div>
-        )
-    }
-
-    if (!user) {
-        return null
-    }
-
+  if (loading) {
     return (
-        <div className={styles.container}>
-            <div className={styles.content}>
-                <div className={styles.header}>
-                    <div className={styles.avatarContainer}>
-                        <div className={styles.avatar}>
-                            <User className={styles.avatarIcon} />
-                        </div>
-                        <h1 className={styles.userName}>{user.displayName}</h1>
-                        <p className={styles.userEmail}>{user.email}</p>
-                    </div>
-                </div>
-
-                <div className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Minha Paróquia</h2>
-                    <div className={styles.parishCard}>
-                        <Church className={styles.parishIcon} />
-                        <div className={styles.parishInfo}>
-                            <h3 className={styles.parishName}>
-                                {localStorage.getItem("selectedParishName") || "Nenhuma paróquia selecionada"}
-                            </h3>
-                            <Button
-                                variant="link"
-                                className={styles.changeParishButton}
-                                onClick={() => router.push("/selecionar-paroquia")}
-                            >
-                                Alterar paróquia
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Configurações</h2>
-                    <div className={styles.menuList}>
-                        <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/notificacoes")}>
-                            <Bell className={styles.menuIcon} />
-                            <span>Notificações</span>
-                        </Button>
-
-                        <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/configuracoes")}>
-                            <Settings className={styles.menuIcon} />
-                            <span>Configurações da conta</span>
-                        </Button>
-                    </div>
-                </div>
-
-                <Button variant="destructive" className={styles.signOutButton} onClick={handleSignOut}>
-                    <LogOut className={styles.signOutIcon} />
-                    Sair da conta
-                </Button>
-
-                <div className={styles.versionContainer}>
-                    <VersionBadge />
-                </div>
-            </div>
-            <BottomNav />
-        </div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Carregando perfil...</p>
+      </div>
     )
+  }
+
+  // Se o usuário não estiver autenticado, mostrar opções para criar conta ou fazer login
+  if (!user) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <div className={styles.avatarContainer}>
+              <div className={styles.avatar}>
+                <User className={styles.avatarIcon} />
+              </div>
+              <h1 className={styles.userName}>Visitante</h1>
+              <p className={styles.userEmail}>Você não está conectado</p>
+            </div>
+          </div>
+
+          <div className={styles.authSection}>
+            <h2 className={styles.sectionTitle}>Acesse sua conta</h2>
+            <p className={styles.authDescription}>
+              Crie uma conta ou faça login para acessar todos os recursos do Cate
+            </p>
+
+            <div className={styles.authButtons}>
+              <Link href="/auth/o/register">
+                <Button className={styles.authButton}>
+                  <UserPlus className={styles.buttonIcon} />
+                  Criar conta
+                </Button>
+              </Link>
+
+              <Link href="/auth/o/login">
+                <Button variant="outline" className={styles.authButton}>
+                  <LogIn className={styles.buttonIcon} />
+                  Entrar
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Minha Paróquia</h2>
+            <div className={styles.parishCard}>
+              <Church className={styles.parishIcon} />
+              <div className={styles.parishInfo}>
+                <h3 className={styles.parishName}>
+                  {localStorage.getItem("selectedParishName") || "Nenhuma paróquia selecionada"}
+                </h3>
+                <Button
+                  variant="link"
+                  className={styles.changeParishButton}
+                  onClick={() => router.push("/selecionar-paroquia")}
+                >
+                  Alterar paróquia
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.versionContainer}>
+            <VersionBadge />
+          </div>
+        </div>
+        <BottomNav />
+      </div>
+    )
+  }
+
+  // Se o usuário estiver autenticado, mostrar o perfil normal
+  return (
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <div className={styles.avatarContainer}>
+            <div className={styles.avatar}>
+              <User className={styles.avatarIcon} />
+            </div>
+            <h1 className={styles.userName}>{user.displayName}</h1>
+            <p className={styles.userEmail}>{user.email}</p>
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Minha Paróquia</h2>
+          <div className={styles.parishCard}>
+            <Church className={styles.parishIcon} />
+            <div className={styles.parishInfo}>
+              <h3 className={styles.parishName}>
+                {localStorage.getItem("selectedParishName") || "Nenhuma paróquia selecionada"}
+              </h3>
+              <Button
+                variant="link"
+                className={styles.changeParishButton}
+                onClick={() => router.push("/selecionar-paroquia")}
+              >
+                Alterar paróquia
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Configurações</h2>
+          <div className={styles.menuList}>
+            <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/notificacoes")}>
+              <Bell className={styles.menuIcon} />
+              <span>Notificações</span>
+            </Button>
+
+            <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/configuracoes")}>
+              <Settings className={styles.menuIcon} />
+              <span>Configurações da conta</span>
+            </Button>
+          </div>
+        </div>
+
+        <Button variant="destructive" className={styles.signOutButton} onClick={handleSignOut}>
+          <LogOut className={styles.signOutIcon} />
+          Sair da conta
+        </Button>
+
+        <div className={styles.versionContainer}>
+          <VersionBadge />
+        </div>
+      </div>
+      <BottomNav />
+    </div>
+  )
 }

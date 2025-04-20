@@ -9,7 +9,7 @@ import type { Parish } from "@/types/parish"
 import styles from "./parish-selector.module.css"
 
 interface ParishSelectorProps {
-  onSelect: (parishId: string) => void
+  onSelect: (parishId: string, parishName: string) => void
 }
 
 export function ParishSelector({ onSelect }: ParishSelectorProps) {
@@ -17,6 +17,7 @@ export function ParishSelector({ onSelect }: ParishSelectorProps) {
   const [parishes, setParishes] = useState<Parish[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedParishId, setSelectedParishId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchParishes = async () => {
@@ -42,6 +43,11 @@ export function ParishSelector({ onSelect }: ParishSelectorProps) {
       parish.address.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
       parish.address.neighborhood.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  const handleParishSelect = (parish: Parish) => {
+    setSelectedParishId(parish.id)
+    onSelect(parish.id, parish.name)
+  }
 
   return (
     <div className={styles.container}>
@@ -76,7 +82,11 @@ export function ParishSelector({ onSelect }: ParishSelectorProps) {
             </div>
           ) : (
             filteredParishes.map((parish) => (
-              <div key={parish.id} className={styles.parishItem} onClick={() => onSelect(parish.id)}>
+              <div
+                key={parish.id}
+                className={`${styles.parishItem} ${selectedParishId === parish.id ? styles.selected : ""}`}
+                onClick={() => handleParishSelect(parish)}
+              >
                 <div className={styles.parishInfo}>
                   <h3 className={styles.parishName}>{parish.name}</h3>
                   <div className={styles.parishLocation}>

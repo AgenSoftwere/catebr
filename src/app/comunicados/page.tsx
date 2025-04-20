@@ -6,29 +6,31 @@ import { NotificationList } from "@/components/notifications/notification-list"
 import { useAuth } from "@/hooks/use-auth"
 import { ParishSelector } from "@/components/parish/parish-selector"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Church } from "lucide-react"
 import styles from "./page.module.css"
 
 export default function ComunicadosPage() {
-  const { user, loading } = useAuth()
+  const { loading } = useAuth() // 'user' removido, pois não estava sendo usado
   const [selectedParish, setSelectedParish] = useState<string | null>(null)
+  const [selectedParishName, setSelectedParishName] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user has selected a parish before
     const storedParish = localStorage.getItem("selectedParish")
+    const storedParishName = localStorage.getItem("selectedParishName")
+
     if (storedParish) {
       setSelectedParish(storedParish)
+      setSelectedParishName(storedParishName)
     }
+  }, [])
 
-    // If user is not logged in and no parish is selected, redirect to parish selection
-    if (!loading && !user && !storedParish) {
-      router.push("/selecionar-paroquia")
-    }
-  }, [user, loading, router])
-
-  const handleParishSelect = (parishId: string) => {
+  const handleParishSelect = (parishId: string, parishName: string) => {
     setSelectedParish(parishId)
+    setSelectedParishName(parishName)
     localStorage.setItem("selectedParish", parishId)
+    localStorage.setItem("selectedParishName", parishName)
   }
 
   if (loading) {
@@ -44,9 +46,23 @@ export default function ComunicadosPage() {
     return (
       <div className={styles.container}>
         <div className={styles.content}>
-          <h1 className={styles.title}>Selecione uma Paróquia</h1>
-          <p className={styles.subtitle}>Para ver os comunicados, selecione uma paróquia de sua preferência</p>
+          <div className={styles.parishSelectionHeader}>
+            <Church className={styles.parishIcon} />
+            <h1 className={styles.title}>Selecione uma Paróquia</h1>
+            <p className={styles.subtitle}>
+              Para ver os comunicados, selecione uma paróquia de sua preferência
+            </p>
+          </div>
+
           <ParishSelector onSelect={handleParishSelect} />
+
+          <Button
+            onClick={() => router.push("/comunicados")}
+            className={styles.continueButton}
+            disabled={!selectedParish}
+          >
+            Ver Comunicados
+          </Button>
         </div>
         <BottomNav />
       </div>
@@ -56,6 +72,18 @@ export default function ComunicadosPage() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
+        <div className={styles.parishHeader}>
+          <h2 className={styles.parishName}>{selectedParishName}</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            className={styles.changeParishButton}
+            onClick={() => router.push("/selecionar-paroquia")}
+          >
+            Alterar paróquia
+          </Button>
+        </div>
+
         <NotificationList />
       </div>
       <BottomNav />
