@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     siteName: "Cate",
     images: [
       {
-        url: "/img-resp.png",
+        url: "https://i.ibb.co/mCMNbSMJ/Chat-GPT-Image-20-de-abr-de-2025-20-26-47.png",
         width: 1200,
         height: 630,
         alt: "Imagem da plataforma Cate",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "Cate - Módulo Paroquial",
     description: "Plataforma para fiéis e paróquias",
     creator: "@GEN", // você pode alterar ou remover se não tiver
-    images: ["https://catebr.vercel.app/img-resp.png"],
+    images: ["https://i.ibb.co/mCMNbSMJ/Chat-GPT-Image-20-de-abr-de-2025-20-26-47.png"],
   },
 
   // Base URL (importante para construir URLs relativas)
