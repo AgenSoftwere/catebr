@@ -1,5 +1,4 @@
-# public/robots.txt
-
 User-agent: *
 Allow: /
+
 Sitemap: https://catebr.vercel.app/sitemap.xml
