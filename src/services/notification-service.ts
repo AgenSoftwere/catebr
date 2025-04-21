@@ -2,7 +2,7 @@ import { database } from "@/lib/firebase"
 import { ref, set, get, push, remove } from "firebase/database"
 import type { Notification } from "@/types/notification"
 
-// Função para buscar todas as notificações disponíveis no sistema
+// Função para buscar todas as notificações disponíveis para o usuário em qualquer paróquia
 export async function getNotificationsForUser(userId: string, parishId: string): Promise<Notification[]> {
   try {
     console.log(`Buscando notificações para usuário ${userId} na paróquia ${parishId}`)
@@ -12,60 +12,47 @@ export async function getNotificationsForUser(userId: string, parishId: string):
       return []
     }
 
-    // Remover prefixo "parish_" se existir
     const cleanParishId = parishId.startsWith("parish_") ? parishId.replace("parish_", "") : parishId
     console.log("ID da paróquia limpo:", cleanParishId)
 
-    // SOLUÇÃO: Buscar todas as notificações disponíveis no sistema
-    const notificationsRef = ref(database, "notifications")
-    const allNotificationsSnapshot = await get(notificationsRef)
+    const notificationsRef = ref(database, `notifications/${cleanParishId}`)
+    const snapshot = await get(notificationsRef)
 
-    if (!allNotificationsSnapshot.exists()) {
-      console.log("Nenhuma notificação encontrada no sistema")
+    if (!snapshot.exists()) {
+      console.log("Nenhuma notificação encontrada para essa paróquia")
       return []
     }
 
-    const allNotifications = allNotificationsSnapshot.val()
-    console.log("Todas as notificações disponíveis:", allNotifications)
-
+    const parishNotifications = snapshot.val()
     const notificationList: Notification[] = []
 
-    // Percorrer todos os nós de notificações (independente do ID da paróquia)
-    for (const notificationParishId in allNotifications) {
-      console.log(`Verificando notificações do nó: ${notificationParishId}`)
-      const parishNotifications = allNotifications[notificationParishId]
+    for (const key in parishNotifications) {
+      const notification = parishNotifications[key]
 
-      for (const key in parishNotifications) {
-        const notification = parishNotifications[key]
-        console.log(`Processando notificação ${key}:`, notification)
-
-        // Check if user has read this notification
-        let isRead = false
-        try {
-          const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
-          const userReadSnapshot = await get(userReadRef)
-          isRead = userReadSnapshot.exists()
-        } catch (error) {
-          console.error("Erro ao verificar status de leitura:", error)
-        }
-
-        notificationList.push({
-          id: key,
-          title: notification.title || "",
-          message: notification.message || "",
-          type: notification.type || "announcement",
-          timestamp: notification.timestamp || new Date().toISOString(),
-          read: isRead,
-          imageUrl: notification.imageUrl || null,
-        })
+      let isRead = false
+      try {
+        const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
+        const userReadSnapshot = await get(userReadRef)
+        isRead = userReadSnapshot.exists()
+      } catch (error) {
+        console.error("Erro ao verificar status de leitura:", error)
       }
+
+      notificationList.push({
+        id: key,
+        title: notification.title || "",
+        message: notification.message || "",
+        type: notification.type || "announcement",
+        timestamp: notification.timestamp || new Date().toISOString(),
+        read: isRead,
+        imageUrl: notification.imageUrl || null,
+      })
     }
 
-    console.log("Lista de notificações processada:", notificationList)
     return notificationList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
   } catch (error) {
     console.error("Erro ao buscar notificações:", error)
-    return [] // Return empty array instead of throwing error
+    return []
   }
 }
 
@@ -89,11 +76,8 @@ export async function createNotification(
   },
 ) {
   try {
-    // Remover prefixo "parish_" se existir
     const cleanParishId = parishId.startsWith("parish_") ? parishId.replace("parish_", "") : parishId
-
-    // Usar o ID fixo onde as notificações estão armazenadas
-    const notificationsRef = ref(database, `notifications/8pD90WJ307PZo6cE8zXosIk1Ebc2`)
+    const notificationsRef = ref(database, `notifications/${cleanParishId}`)
     const newNotificationRef = push(notificationsRef)
 
     const newNotification = {
@@ -120,10 +104,9 @@ export async function updateNotification(
   },
 ) {
   try {
-    // Usar o ID fixo onde as notificações estão armazenadas
-    const notificationRef = ref(database, `notifications/8pD90WJ307PZo6cE8zXosIk1Ebc2/${notificationId}`)
+    const cleanParishId = parishId.startsWith("parish_") ? parishId.replace("parish_", "") : parishId
+    const notificationRef = ref(database, `notifications/${cleanParishId}/${notificationId}`)
 
-    // Get the existing notification to preserve the timestamp
     const existingSnapshot = await get(notificationRef)
     if (!existingSnapshot.exists()) {
       throw new Error("Notification not found")
@@ -133,7 +116,7 @@ export async function updateNotification(
 
     await set(notificationRef, {
       ...notification,
-      timestamp: existingNotification.timestamp, // Preserve original timestamp
+      timestamp: existingNotification.timestamp,
     })
 
     return {
@@ -149,8 +132,8 @@ export async function updateNotification(
 
 export async function deleteNotification(parishId: string, notificationId: string) {
   try {
-    // Usar o ID fixo onde as notificações estão armazenadas
-    const notificationRef = ref(database, `notifications/8pD90WJ307PZo6cE8zXosIk1Ebc2/${notificationId}`)
+    const cleanParishId = parishId.startsWith("parish_") ? parishId.replace("parish_", "") : parishId
+    const notificationRef = ref(database, `notifications/${cleanParishId}/${notificationId}`)
     await remove(notificationRef)
     return true
   } catch (error) {
