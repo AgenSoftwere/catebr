@@ -7,3 +7,11 @@ export interface Notification {
     read: boolean
   }
   
+  export interface ParishNotification {
+    id: string
+    title: string
+    message: string
+    type: "event" | "announcement" | "alert"
+    timestamp: string
+  }
+  
