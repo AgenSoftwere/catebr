@@ -1,0 +1,19 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .main {
+    flex: 1;
+    padding: 2rem;
+    background-color: #f8fafc;
+    overflow-x: hidden;
+  }
+  
+  @media (max-width: 1023px) {
+    .main {
+      padding: 1rem;
+      padding-top: 4rem; /* Space for the mobile menu button */
+    }
+  }
+  

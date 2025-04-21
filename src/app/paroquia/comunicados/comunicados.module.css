@@ -1,0 +1,279 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: #64748b;
+  }
+  
+  .buttonIcon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .searchContainer {
+    position: relative;
+    flex: 1;
+  }
+  
+  .searchIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    color: #94a3b8;
+  }
+  
+  .searchInput {
+    padding-left: 2.5rem;
+  }
+  
+  .filterButton {
+    flex-shrink: 0;
+  }
+  
+  .filterIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .tabs {
+    margin-bottom: 2rem;
+  }
+  
+  .tabContent {
+    margin-top: 1.5rem;
+  }
+  
+  .cardHeader {
+    padding-bottom: 1rem;
+  }
+  
+  .notificationList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .notificationItem {
+    display: flex;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+  }
+  
+  .notificationItem:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .notificationIcon {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.25rem;
+    margin-right: 1rem;
+  }
+  
+  .typeIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #3b82f6;
+  }
+  
+  .notificationContent {
+    flex: 1;
+  }
+  
+  .notificationHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .notificationTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+  }
+  
+  .notificationMessage {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  
+  .notificationTime {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+  
+  .notificationActions {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .actionButton {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .actionIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .deleteButton:hover {
+    color: #ef4444;
+  }
+  
+  .loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+    gap: 1rem;
+  }
+  
+  .loadingSpinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+  }
+  
+  .emptyIcon {
+    width: 3rem;
+    height: 3rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+  }
+  
+  .emptyTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .emptyText {
+    font-size: 0.875rem;
+    color: #64748b;
+    max-width: 300px;
+  }
+  
+  .dialogContent {
+    max-width: 500px;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.25rem;
+  }
+  
+  .deleteConfirmationContent {
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  .deleteConfirmationTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .deleteConfirmationMessage {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  
+  .announcementBadge {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    border-color: #bae6fd;
+  }
+  
+  .eventBadge {
+    background-color: #dcfce7;
+    color: #16a34a;
+    border-color: #bbf7d0;
+  }
+  
+  .alertBadge {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border-color: #fecaca;
+  }
+  
+  @media (max-width: 767px) {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  
+    .notificationItem {
+      flex-direction: column;
+    }
+  
+    .notificationIcon {
+      margin-bottom: 0.5rem;
+    }
+  
+    .notificationActions {
+      margin-top: 1rem;
+      align-self: flex-end;
+    }
+  }
+  

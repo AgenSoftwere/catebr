@@ -1,10 +1,34 @@
+"use client"
+
+import { useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Church, Bell, User } from 'lucide-react'
 import { VersionBadge } from "@/components/version-badge"
 import styles from "./page.module.css"
+import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
 
 export default function HomePage() {
+  const { user, userType, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      // Redirect based on user type
+      if (userType === "parish") {
+        router.push("/paroquia/dashboard")
+      } else {
+        router.push("/comunicados")
+      }
+    }
+  }, [user, userType, loading, router])
+
+  // If still loading or user is authenticated, show a minimal loading state
+  if (loading || user) {
+    return null
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
