@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 import type { Notification } from "@/types/notification"
 import { useAuth } from "@/hooks/use-auth"
 import { markNotificationAsRead } from "@/services/notification-service"

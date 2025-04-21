@@ -2,7 +2,7 @@ import { database } from "@/lib/firebase"
 import { ref, set, get, push, remove } from "firebase/database"
 import type { Notification, ParishNotification } from "@/types/notification"
 
-// Modificada para receber o parishId diretamente
+// Modifique a função para verificar o formato do ID da paróquia
 export async function getNotificationsForUser(userId: string, parishId: string): Promise<Notification[]> {
   try {
     console.log(`Buscando notificações para usuário ${userId} na paróquia ${parishId}`)
@@ -12,9 +12,13 @@ export async function getNotificationsForUser(userId: string, parishId: string):
       return []
     }
 
+    // Remover prefixo "parish_" se existir
+    const cleanParishId = parishId.startsWith("parish_") ? parishId.replace("parish_", "") : parishId
+    console.log("ID da paróquia limpo:", cleanParishId)
+
     // Get notifications for the selected parish
-    const notificationsRef = ref(database, `notifications/${parishId}`)
-    console.log("Caminho no Firebase:", `notifications/${parishId}`)
+    const notificationsRef = ref(database, `notifications/${cleanParishId}`)
+    console.log("Caminho no Firebase:", `notifications/${cleanParishId}`)
 
     const notificationsSnapshot = await get(notificationsRef)
     console.log("Snapshot existe:", notificationsSnapshot.exists())

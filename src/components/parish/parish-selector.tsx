@@ -45,8 +45,9 @@ export function ParishSelector({ onSelect }: ParishSelectorProps) {
       parish.address.neighborhood.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
+  // Adicione um log para mostrar o ID real da paróquia
   const handleParishSelect = (parish: Parish) => {
-    console.log("Paróquia selecionada:", parish)
+    console.log("Paróquia selecionada (ID original do Firebase):", parish.id)
     setSelectedParishId(parish.id)
     onSelect(parish.id, parish.name)
   }

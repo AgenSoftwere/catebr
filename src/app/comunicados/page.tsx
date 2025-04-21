@@ -7,11 +7,11 @@ import { useAuth } from "@/hooks/use-auth"
 import { ParishSelector } from "@/components/parish/parish-selector"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Church } from 'lucide-react'
+import { Church } from "lucide-react"
 import styles from "./page.module.css"
 
 export default function ComunicadosPage() {
-  const { loading, user } = useAuth()
+  const { loading } = useAuth() // Remova user da desestruturação
   const [selectedParish, setSelectedParish] = useState<string | null>(null)
   const [selectedParishName, setSelectedParishName] = useState<string | null>(null)
   const router = useRouter()

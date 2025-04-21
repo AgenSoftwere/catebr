@@ -80,6 +80,7 @@ export async function getParishByCNPJ(cnpj: string) {
   }
 }
 
+// Modifique a função getParishes para retornar os IDs corretos
 export async function getParishes(): Promise<Parish[]> {
   try {
     const parishesRef = ref(database, "parishes")
@@ -93,13 +94,14 @@ export async function getParishes(): Promise<Parish[]> {
         const parish = parishes[key]
 
         parishList.push({
-          id: key,
+          id: key, // Usar a chave original do Firebase, não adicionar prefixo
           name: parish.name,
           address: parish.address,
           phone: parish.phone,
         })
       }
 
+      console.log("Paróquias carregadas do Firebase:", parishList)
       return parishList.sort((a, b) => a.name.localeCompare(b.name))
     }
 
