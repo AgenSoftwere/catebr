@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,15 +10,22 @@ import { toast } from "sonner"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Mail, Lock, ArrowLeft, Church } from "lucide-react"
+import { Mail, Lock, ArrowLeft, Church } from 'lucide-react'
 import styles from "./login.module.css"
 import { VersionBadge } from "@/components/version-badge"
 
 export default function ParishLoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const { signIn, error, loading } = useAuth()
+    const { signIn, error, loading, userType } = useAuth()
     const router = useRouter()
+
+    // Add effect to check user type and redirect
+    useEffect(() => {
+        if (userType === "parish") {
+            router.push("/paroquia/dashboard")
+        }
+    }, [userType, router])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -29,7 +36,7 @@ export default function ParishLoginPage() {
             toast.success("Login realizado com sucesso", {
                 description: "Bem-vindo de volta!",
             })
-            router.push("/paroquia/dashboard")
+            // The redirection will be handled by the useEffect above
         }
     }
 

@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Filter, Bell, Calendar, AlertTriangle, Trash2, Edit } from "lucide-react"
+import { Plus, Search, Filter, Bell, Calendar, AlertTriangle, Trash2, Edit, ImageIcon, X } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -25,6 +27,7 @@ import { ref, get, push, set, remove } from "firebase/database"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { toast } from "sonner"
+import Image from "next/image"
 import styles from "./comunicados.module.css"
 import type { Notification as ParishNotification } from "@/types/notification"
 
@@ -41,13 +44,12 @@ export default function ParishComunicadosPage() {
     title: "",
     message: "",
     type: "announcement" as "announcement" | "event" | "alert",
+    imageUrl: null as string | null,
   })
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
-  useEffect(() => {
-    fetchNotifications()
-  }, [user])
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user) return
 
     try {
@@ -76,6 +78,41 @@ export default function ParishComunicadosPage() {
     } finally {
       setLoading(false)
     }
+  }, [user])
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Check file size (limit to 1MB)
+    if (file.size > 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 1MB")
+      return
+    }
+
+    setIsUploading(true)
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setImagePreview(base64String)
+      setNewNotification({ ...newNotification, imageUrl: base64String })
+      setIsUploading(false)
+    }
+    reader.onerror = () => {
+      toast.error("Erro ao processar a imagem")
+      setIsUploading(false)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeImage = () => {
+    setImagePreview(null)
+    setNewNotification({ ...newNotification, imageUrl: null })
   }
 
   const handlePublish = async () => {
@@ -98,6 +135,7 @@ export default function ParishComunicadosPage() {
           message: newNotification.message,
           type: newNotification.type,
           timestamp: selectedNotification.timestamp, // Keep original timestamp
+          imageUrl: newNotification.imageUrl,
         })
 
         toast.success("Comunicado atualizado com sucesso")
@@ -109,6 +147,7 @@ export default function ParishComunicadosPage() {
           message: newNotification.message,
           type: newNotification.type,
           timestamp: new Date().toISOString(),
+          imageUrl: newNotification.imageUrl,
         })
 
         toast.success("Comunicado publicado com sucesso")
@@ -152,7 +191,9 @@ export default function ParishComunicadosPage() {
       title: notification.title,
       message: notification.message,
       type: notification.type,
+      imageUrl: notification.imageUrl || null,
     })
+    setImagePreview(notification.imageUrl || null)
     setIsPublishDialogOpen(true)
   }
 
@@ -166,7 +207,9 @@ export default function ParishComunicadosPage() {
       title: "",
       message: "",
       type: "announcement",
+      imageUrl: null,
     })
+    setImagePreview(null)
     setSelectedNotification(null)
   }
 
@@ -293,6 +336,51 @@ export default function ParishComunicadosPage() {
               />
             </div>
 
+            <div className={styles.formGroup}>
+              <Label htmlFor="image">Imagem (opcional)</Label>
+              <div className={styles.imageUploadContainer}>
+                {imagePreview ? (
+                  <div className={styles.imagePreviewContainer}>
+                    <div className={styles.imagePreviewWrapper}>
+                      <Image 
+                        src={imagePreview || "/placeholder.svg"} 
+                        alt="Preview" 
+                        className={styles.imagePreview} 
+                        width={500}
+                        height={300}
+                        layout="responsive"
+                      />
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className={styles.removeImageButton}
+                      onClick={removeImage}
+                      type="button"
+                    >
+                      <X className={styles.removeImageIcon} />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className={styles.imageUploadButton}>
+                    <Label htmlFor="image-upload" className={styles.imageUploadLabel}>
+                      <ImageIcon className={styles.imageUploadIcon} />
+                      <span>{isUploading ? "Processando..." : "Adicionar imagem"}</span>
+                    </Label>
+                    <Input
+                      id="image-upload"
+                      type="file"
+                      accept="image/jpeg, image/png, image/gif"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                      className={styles.imageInput}
+                    />
+                  </div>
+                )}
+              </div>
+              <p className={styles.imageHelp}>Tamanho máximo: 1MB. Formatos: JPG, PNG, GIF</p>
+            </div>
+
             <DialogFooter>
               <Button
                 variant="outline"
@@ -366,6 +454,20 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
+                        {notification.imageUrl && (
+                          <div className={styles.notificationImageContainer}>
+                            <div className={styles.notificationImageWrapper}>
+                              <Image 
+                                src={notification.imageUrl || "/placeholder.svg"} 
+                                alt={`Imagem para ${notification.title}`} 
+                                className={styles.notificationImage} 
+                                width={500}
+                                height={300}
+                                layout="responsive"
+                              />
+                            </div>
+                          </div>
+                        )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
@@ -431,6 +533,20 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
+                        {notification.imageUrl && (
+                          <div className={styles.notificationImageContainer}>
+                            <div className={styles.notificationImageWrapper}>
+                              <Image 
+                                src={notification.imageUrl || "/placeholder.svg"} 
+                                alt={`Imagem para ${notification.title}`} 
+                                className={styles.notificationImage} 
+                                width={500}
+                                height={300}
+                                layout="responsive"
+                              />
+                            </div>
+                          </div>
+                        )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
@@ -497,6 +613,20 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
+                        {notification.imageUrl && (
+                          <div className={styles.notificationImageContainer}>
+                            <div className={styles.notificationImageWrapper}>
+                              <Image 
+                                src={notification.imageUrl || "/placeholder.svg"} 
+                                alt={`Imagem para ${notification.title}`} 
+                                className={styles.notificationImage} 
+                                width={500}
+                                height={300}
+                                layout="responsive"
+                              />
+                            </div>
+                          </div>
+                        )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
@@ -562,6 +692,20 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
+                        {notification.imageUrl && (
+                          <div className={styles.notificationImageContainer}>
+                            <div className={styles.notificationImageWrapper}>
+                              <Image 
+                                src={notification.imageUrl || "/placeholder.svg"} 
+                                alt={`Imagem para ${notification.title}`} 
+                                className={styles.notificationImage} 
+                                width={500}
+                                height={300}
+                                layout="responsive"
+                              />
+                            </div>
+                          </div>
+                        )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,

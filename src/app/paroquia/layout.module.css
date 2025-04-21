@@ -1,6 +1,7 @@
 .layout {
     display: flex;
     min-height: 100vh;
+    width: 100%;
   }
   
   .main {
@@ -8,12 +9,18 @@
     padding: 2rem;
     background-color: #f8fafc;
     overflow-x: hidden;
+    width: 100%;
   }
   
   @media (max-width: 1023px) {
+    .layout {
+      flex-direction: column;
+    }
+  
     .main {
       padding: 1rem;
       padding-top: 4rem; /* Space for the mobile menu button */
+      width: 100%;
     }
   }
   

@@ -90,6 +90,19 @@
     line-height: 1.4;
   }
   
+  .itemImageContainer {
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  
+  .itemImage {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
   .itemTime {
     font-size: 0.75rem;
     color: #94a3b8;

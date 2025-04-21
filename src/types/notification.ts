@@ -5,6 +5,7 @@ export interface Notification {
     type: "event" | "announcement" | "alert"
     timestamp: string
     read: boolean
+    imageUrl?: string | null
   }
   
   export interface ParishNotification {
@@ -13,5 +14,6 @@ export interface Notification {
     message: string
     type: "event" | "announcement" | "alert"
     timestamp: string
+    imageUrl?: string | null
   }
   
