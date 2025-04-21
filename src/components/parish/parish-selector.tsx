@@ -24,6 +24,7 @@ export function ParishSelector({ onSelect }: ParishSelectorProps) {
       try {
         setLoading(true)
         const parishList = await getParishes()
+        console.log("Paróquias carregadas:", parishList)
         setParishes(parishList)
         setError(null)
       } catch (err) {
@@ -45,6 +46,7 @@ export function ParishSelector({ onSelect }: ParishSelectorProps) {
   )
 
   const handleParishSelect = (parish: Parish) => {
+    console.log("Paróquia selecionada:", parish)
     setSelectedParishId(parish.id)
     onSelect(parish.id, parish.name)
   }

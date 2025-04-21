@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Notification } from "@/types/notification"
 import { useAuth } from "@/hooks/use-auth"
-import { getNotificationsForUser, markNotificationAsRead } from "@/services/notification-service"
+import { markNotificationAsRead } from "@/services/notification-service"
 
 interface NotificationContextType {
   notifications: Notification[]
@@ -11,35 +11,14 @@ interface NotificationContextType {
   markAsRead: (id: string) => void
   markAllAsRead: () => void
   addNotification: (notification: Omit<Notification, "id" | "timestamp" | "read">) => void
+  setNotifications: (notifications: Notification[]) => void
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const { user, loading } = useAuth()
-
-  useEffect(() => {
-    if (user && !loading) {
-      // Fetch notifications from Firebase
-      const fetchNotifications = async () => {
-        try {
-          const userNotifications = await getNotificationsForUser(user.uid)
-          setNotifications(userNotifications)
-        } catch (error) {
-          console.error("Error fetching notifications:", error)
-        }
-      }
-
-      fetchNotifications()
-
-      // Set up interval to refresh notifications every 30 seconds
-      const intervalId = setInterval(fetchNotifications, 30000)
-
-      // Clean up interval on unmount
-      return () => clearInterval(intervalId)
-    }
-  }, [user, loading])
+  const { user } = useAuth()
 
   const hasUnreadNotifications = notifications.some((notification) => !notification.read)
 
@@ -93,6 +72,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         markAsRead,
         markAllAsRead,
         addNotification,
+        setNotifications,
       }}
     >
       {children}

@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { ParishSelector } from "@/components/parish/parish-selector"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Church } from "lucide-react"
+import { Church } from 'lucide-react'
 import styles from "./page.module.css"
 
 export default function ComunicadosPage() {
@@ -22,12 +22,16 @@ export default function ComunicadosPage() {
     const storedParishName = localStorage.getItem("selectedParishName")
 
     if (storedParish) {
+      console.log("Paróquia selecionada:", storedParish, storedParishName)
       setSelectedParish(storedParish)
       setSelectedParishName(storedParishName)
+    } else {
+      console.log("Nenhuma paróquia selecionada no localStorage")
     }
   }, [])
 
   const handleParishSelect = (parishId: string, parishName: string) => {
+    console.log("Selecionando paróquia:", parishId, parishName)
     setSelectedParish(parishId)
     setSelectedParishName(parishName)
     localStorage.setItem("selectedParish", parishId)
@@ -83,7 +87,7 @@ export default function ComunicadosPage() {
           </Button>
         </div>
 
-        <NotificationList />
+        <NotificationList parishId={selectedParish} />
       </div>
       <BottomNav />
     </div>

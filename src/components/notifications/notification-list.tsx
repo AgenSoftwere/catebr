@@ -8,19 +8,44 @@ import { ptBR } from "date-fns/locale"
 import { Bell, Calendar, Info } from 'lucide-react'
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { getNotificationsForUser } from "@/services/notification-service"
+import { useAuth } from "@/hooks/use-auth"
 
-export function NotificationList() {
-  const { notifications, markAllAsRead } = useNotifications()
+interface NotificationListProps {
+  parishId?: string
+}
+
+export function NotificationList({ parishId }: NotificationListProps) {
+  const { notifications, markAllAsRead, setNotifications } = useNotifications()
   const [isLoading, setIsLoading] = useState(true)
+  const { user } = useAuth()
 
   useEffect(() => {
-    // Add a small delay to ensure notifications are loaded
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
+    async function fetchNotifications() {
+      if (!parishId) {
+        console.log("Nenhum ID de paróquia fornecido")
+        setIsLoading(false)
+        return
+      }
 
-    return () => clearTimeout(timer)
-  }, [])
+      try {
+        console.log("Buscando notificações para a paróquia:", parishId)
+        const userId = user?.uid || "anonymous"
+        const fetchedNotifications = await getNotificationsForUser(userId, parishId)
+        console.log("Notificações encontradas:", fetchedNotifications.length, fetchedNotifications)
+        setNotifications(fetchedNotifications)
+      } catch (error) {
+        console.error("Erro ao buscar notificações:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchNotifications()
+    // Atualizar a cada 30 segundos
+    const intervalId = setInterval(fetchNotifications, 30000)
+    return () => clearInterval(intervalId)
+  }, [parishId, user, setNotifications])
 
   if (isLoading) {
     return (

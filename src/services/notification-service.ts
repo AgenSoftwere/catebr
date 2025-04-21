@@ -2,26 +2,32 @@ import { database } from "@/lib/firebase"
 import { ref, set, get, push, remove } from "firebase/database"
 import type { Notification, ParishNotification } from "@/types/notification"
 
-// Fix the getNotificationsForUser function to properly fetch notifications from the selected parish
-export async function getNotificationsForUser(userId: string): Promise<Notification[]> {
+// Modificada para receber o parishId diretamente
+export async function getNotificationsForUser(userId: string, parishId: string): Promise<Notification[]> {
   try {
-    // Get user's selected parish
-    const selectedParishId = typeof window !== "undefined" ? localStorage.getItem("selectedParish") : null
+    console.log(`Buscando notificações para usuário ${userId} na paróquia ${parishId}`)
 
-    if (!selectedParishId) {
+    if (!parishId) {
+      console.error("ID da paróquia não fornecido")
       return []
     }
 
     // Get notifications for the selected parish
-    const notificationsRef = ref(database, `notifications/${selectedParishId}`)
+    const notificationsRef = ref(database, `notifications/${parishId}`)
+    console.log("Caminho no Firebase:", `notifications/${parishId}`)
+
     const notificationsSnapshot = await get(notificationsRef)
+    console.log("Snapshot existe:", notificationsSnapshot.exists())
 
     if (notificationsSnapshot.exists()) {
       const notifications = notificationsSnapshot.val()
+      console.log("Dados brutos:", notifications)
+
       const notificationList: Notification[] = []
 
       for (const key in notifications) {
         const notification = notifications[key]
+        console.log(`Processando notificação ${key}:`, notification)
 
         // Check if user has read this notification
         let isRead = false
@@ -30,7 +36,7 @@ export async function getNotificationsForUser(userId: string): Promise<Notificat
           const userReadSnapshot = await get(userReadRef)
           isRead = userReadSnapshot.exists()
         } catch (error) {
-          console.error("Error checking read status:", error)
+          console.error("Erro ao verificar status de leitura:", error)
         }
 
         notificationList.push({
@@ -44,12 +50,15 @@ export async function getNotificationsForUser(userId: string): Promise<Notificat
         })
       }
 
+      console.log("Lista de notificações processada:", notificationList)
       return notificationList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    } else {
+      console.log("Nenhuma notificação encontrada para esta paróquia")
     }
 
     return []
   } catch (error) {
-    console.error("Error getting notifications:", error)
+    console.error("Erro ao buscar notificações:", error)
     return [] // Return empty array instead of throwing error
   }
 }
