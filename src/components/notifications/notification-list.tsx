@@ -5,7 +5,7 @@ import type { Notification } from "@/types/notification"
 import styles from "./notification-list.module.css"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Bell, Calendar, Info } from "lucide-react"
+import { Bell, Calendar, Info } from 'lucide-react'
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { getNotificationsForUser } from "@/services/notification-service"
@@ -23,10 +23,12 @@ export function NotificationList({ parishId }: NotificationListProps) {
   const { user } = useAuth()
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchNotifications() {
       if (!parishId) {
         console.log("Nenhum ID de paróquia fornecido")
-        setIsLoading(false)
+        if (isMounted) setIsLoading(false)
         return
       }
 
@@ -34,7 +36,7 @@ export function NotificationList({ parishId }: NotificationListProps) {
         console.log("Buscando notificações para a paróquia:", parishId)
         const userId = user?.uid || "anonymous"
         const fetchedNotifications = await getNotificationsForUser(userId, parishId)
-        console.log("Notificações encontradas:", fetchedNotifications.length, fetchedNotifications)
+        console.log("Notificações encontradas:", fetchedNotifications.length)
 
         // Processar imagens do Firestore
         const processedNotifications = await Promise.all(
@@ -62,19 +64,23 @@ export function NotificationList({ parishId }: NotificationListProps) {
           }),
         )
 
-        setNotifications(processedNotifications)
+        if (isMounted) {
+          setNotifications(processedNotifications)
+          setIsLoading(false)
+        }
       } catch (error) {
         console.error("Erro ao buscar notificações:", error)
-      } finally {
-        setIsLoading(false)
+        if (isMounted) setIsLoading(false)
       }
     }
 
     fetchNotifications()
-    // Atualizar a cada 30 segundos
-    const intervalId = setInterval(fetchNotifications, 30000)
-    return () => clearInterval(intervalId)
-  }, [parishId, user, setNotifications])
+    
+    // Cleanup function para evitar memory leaks e atualizações em componentes desmontados
+    return () => {
+      isMounted = false;
+    }
+  }, [parishId, user, setNotifications]); // Dependências corretas
 
   if (isLoading) {
     return (
