@@ -1,0 +1,290 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 70px; /* Espaço para o bottom nav */
+    background-color: #f8fafc;
+  }
+  
+  .content {
+    flex: 1;
+    padding: 1.5rem;
+    max-width: 768px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+  }
+  
+  .cardsContainer {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  .writerCard {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+  
+  .cardContent {
+    padding: 2rem;
+  }
+  
+  .cardIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cardIcon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: white;
+  }
+  
+  .cardTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .cardDescription {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+    line-height: 1.5;
+  }
+  
+  .cardButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: white;
+    color: #2563eb;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .cardButton:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: translateX(5px);
+  }
+  
+  .buttonIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .alreadyWriter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .checkIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #10b981;
+  }
+  
+  .dialogContent {
+    max-width: 500px;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .profileImageContainer {
+    margin-top: 0.75rem;
+  }
+  
+  .profileImageUpload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+  }
+  
+  .profileImageUpload:hover {
+    border-color: #3b82f6;
+    background-color: #f0f9ff;
+  }
+  
+  .uploadLabel {
+    cursor: pointer;
+    color: #3b82f6;
+    font-weight: 500;
+  }
+  
+  .imageInput {
+    display: none;
+  }
+  
+  .profileImagePreview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .previewImage {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e2e8f0;
+  }
+  
+  .changeImageButton {
+    font-size: 0.875rem;
+  }
+  
+  .imageHelp {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+  }
+  
+  .termsContainer {
+    margin-bottom: 1.5rem;
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .checkboxContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .termsLabel {
+    font-size: 0.875rem;
+    color: #475569;
+    line-height: 1.4;
+  }
+  
+  .input {
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+  }
+  
+  .input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: #64748b;
+    gap: 1rem;
+  }
+  
+  .loadingSpinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .authRequired {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .authIcon {
+    width: 3rem;
+    height: 3rem;
+    color: #f59e0b;
+    margin-bottom: 1.5rem;
+  }
+  
+  .authTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+  
+  .authText {
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    max-width: 400px;
+  }
+  
+  .authButton {
+    min-width: 150px;
+  }
+  
+  @media (max-width: 640px) {
+    .title {
+      font-size: 1.5rem;
+    }
+    
+    .cardContent {
+      padding: 1.5rem;
+    }
+  }
+  

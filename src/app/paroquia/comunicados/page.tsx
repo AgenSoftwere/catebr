@@ -22,8 +22,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
-import { database } from "@/lib/firebase"
+import { database, firestore } from "@/lib/firebase"
 import { ref, get, push, set, remove } from "firebase/database"
+import { doc, setDoc } from "firebase/firestore"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { toast } from "sonner"
@@ -88,9 +89,9 @@ export default function ParishComunicadosPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Check file size (limit to 1MB)
-    if (file.size > 1024 * 1024) {
-      toast.error("A imagem deve ter no máximo 1MB")
+    // Aumentado para 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB")
       return
     }
 
@@ -127,6 +128,21 @@ export default function ParishComunicadosPage() {
       const parishId = user.uid
       const notificationsRef = ref(database, `notifications/${parishId}`)
 
+      // Se tiver imagem, salvar no Firestore
+      let imageUrl = newNotification.imageUrl
+      if (imageUrl && !selectedNotification) {
+        // Gerar um ID único para a imagem
+        const imageId = `img_${Date.now()}`
+        // Salvar a imagem no Firestore
+        await setDoc(doc(firestore, "images", imageId), {
+          data: imageUrl,
+          createdAt: new Date().toISOString(),
+          parishId: parishId
+        })
+        // Atualizar a URL para referenciar o ID no Firestore
+        imageUrl = `firestore:${imageId}`
+      }
+
       // If editing an existing notification
       if (selectedNotification) {
         const notificationRef = ref(database, `notifications/${parishId}/${selectedNotification.id}`)
@@ -147,7 +163,7 @@ export default function ParishComunicadosPage() {
           message: newNotification.message,
           type: newNotification.type,
           timestamp: new Date().toISOString(),
-          imageUrl: newNotification.imageUrl,
+          imageUrl: imageUrl,
         })
 
         toast.success("Comunicado publicado com sucesso")
@@ -278,6 +294,7 @@ export default function ParishComunicadosPage() {
                 resetForm()
                 setIsPublishDialogOpen(true)
               }}
+              className={styles.newButton}
             >
               <Plus className={styles.buttonIcon} />
               Novo Comunicado
@@ -342,10 +359,10 @@ export default function ParishComunicadosPage() {
                 {imagePreview ? (
                   <div className={styles.imagePreviewContainer}>
                     <div className={styles.imagePreviewWrapper}>
-                      <Image 
-                        src={imagePreview || "/placeholder.svg"} 
-                        alt="Preview" 
-                        className={styles.imagePreview} 
+                      <Image
+                        src={imagePreview || "/placeholder.svg"}
+                        alt="Preview"
+                        className={styles.imagePreview}
                         width={500}
                         height={300}
                         layout="responsive"
@@ -378,7 +395,7 @@ export default function ParishComunicadosPage() {
                   </div>
                 )}
               </div>
-              <p className={styles.imageHelp}>Tamanho máximo: 1MB. Formatos: JPG, PNG, GIF</p>
+              <p className={styles.imageHelp}>Tamanho máximo: 5MB. Formatos: JPG, PNG, GIF</p>
             </div>
 
             <DialogFooter>
@@ -414,7 +431,7 @@ export default function ParishComunicadosPage() {
       </div>
 
       <Tabs defaultValue="todos" value={activeTab} onValueChange={setActiveTab} className={styles.tabs}>
-        <TabsList>
+        <TabsList className={styles.tabsList}>
           <TabsTrigger value="todos">Todos</TabsTrigger>
           <TabsTrigger value="anuncios">Anúncios</TabsTrigger>
           <TabsTrigger value="eventos">Eventos</TabsTrigger>
@@ -457,10 +474,10 @@ export default function ParishComunicadosPage() {
                         {notification.imageUrl && (
                           <div className={styles.notificationImageContainer}>
                             <div className={styles.notificationImageWrapper}>
-                              <Image 
-                                src={notification.imageUrl || "/placeholder.svg"} 
-                                alt={`Imagem para ${notification.title}`} 
-                                className={styles.notificationImage} 
+                              <Image
+                                src={notification.imageUrl || "/placeholder.svg"}
+                                alt={`Imagem para ${notification.title}`}
+                                className={styles.notificationImage}
                                 width={500}
                                 height={300}
                                 layout="responsive"
@@ -536,10 +553,10 @@ export default function ParishComunicadosPage() {
                         {notification.imageUrl && (
                           <div className={styles.notificationImageContainer}>
                             <div className={styles.notificationImageWrapper}>
-                              <Image 
-                                src={notification.imageUrl || "/placeholder.svg"} 
-                                alt={`Imagem para ${notification.title}`} 
-                                className={styles.notificationImage} 
+                              <Image
+                                src={notification.imageUrl || "/placeholder.svg"}
+                                alt={`Imagem para ${notification.title}`}
+                                className={styles.notificationImage}
                                 width={500}
                                 height={300}
                                 layout="responsive"
@@ -616,10 +633,10 @@ export default function ParishComunicadosPage() {
                         {notification.imageUrl && (
                           <div className={styles.notificationImageContainer}>
                             <div className={styles.notificationImageWrapper}>
-                              <Image 
-                                src={notification.imageUrl || "/placeholder.svg"} 
-                                alt={`Imagem para ${notification.title}`} 
-                                className={styles.notificationImage} 
+                              <Image
+                                src={notification.imageUrl || "/placeholder.svg"}
+                                alt={`Imagem para ${notification.title}`}
+                                className={styles.notificationImage}
                                 width={500}
                                 height={300}
                                 layout="responsive"
@@ -695,10 +712,10 @@ export default function ParishComunicadosPage() {
                         {notification.imageUrl && (
                           <div className={styles.notificationImageContainer}>
                             <div className={styles.notificationImageWrapper}>
-                              <Image 
-                                src={notification.imageUrl || "/placeholder.svg"} 
-                                alt={`Imagem para ${notification.title}`} 
-                                className={styles.notificationImage} 
+                              <Image
+                                src={notification.imageUrl || "/placeholder.svg"}
+                                alt={`Imagem para ${notification.title}`}
+                                className={styles.notificationImage}
                                 width={500}
                                 height={300}
                                 layout="responsive"

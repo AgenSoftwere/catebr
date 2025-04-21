@@ -5,11 +5,13 @@ import type { Notification } from "@/types/notification"
 import styles from "./notification-list.module.css"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Bell, Calendar, Info } from 'lucide-react'
+import { Bell, Calendar, Info } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { getNotificationsForUser } from "@/services/notification-service"
 import { useAuth } from "@/hooks/use-auth"
+import { firestore } from "@/lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
 
 interface NotificationListProps {
   parishId?: string
@@ -33,7 +35,34 @@ export function NotificationList({ parishId }: NotificationListProps) {
         const userId = user?.uid || "anonymous"
         const fetchedNotifications = await getNotificationsForUser(userId, parishId)
         console.log("Notificações encontradas:", fetchedNotifications.length, fetchedNotifications)
-        setNotifications(fetchedNotifications)
+
+        // Processar imagens do Firestore
+        const processedNotifications = await Promise.all(
+          fetchedNotifications.map(async (notification) => {
+            if (
+              notification.imageUrl &&
+              typeof notification.imageUrl === "string" &&
+              notification.imageUrl.startsWith("firestore:")
+            ) {
+              try {
+                const imageId = notification.imageUrl.replace("firestore:", "")
+                const imageDoc = await getDoc(doc(firestore, "images", imageId))
+
+                if (imageDoc.exists()) {
+                  return {
+                    ...notification,
+                    imageUrl: imageDoc.data().data,
+                  }
+                }
+              } catch (error) {
+                console.error("Erro ao buscar imagem do Firestore:", error)
+              }
+            }
+            return notification
+          }),
+        )
+
+        setNotifications(processedNotifications)
       } catch (error) {
         console.error("Erro ao buscar notificações:", error)
       } finally {
