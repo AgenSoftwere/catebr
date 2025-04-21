@@ -37,6 +37,7 @@ export default function ContribuicoesPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Corrigir o problema de tipagem com setProfileImage
   useEffect(() => {
     if (user) {
       // Verificar se o usuário já é escritor
@@ -44,7 +45,7 @@ export default function ContribuicoesPage() {
       setIsWriter(isUserWriter || false)
 
       // Carregar foto de perfil se existir
-      if (user.profileImage) {
+      if (user.profileImage && typeof user.profileImage === 'string') {
         setProfileImage(user.profileImage)
       }
     }
@@ -275,8 +276,8 @@ export default function ContribuicoesPage() {
                   id="terms"
                   checked={termsAccepted}
                   onCheckedChange={(checked) => {
-                    if (typeof checked === 'boolean') {
-                      setTermsAccepted(checked);
+                    if (typeof checked === "boolean") {
+                      setTermsAccepted(checked)
                     }
                   }}
                 />

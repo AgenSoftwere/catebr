@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth"
 import { database, firestore } from "@/lib/firebase"
 import { ref, get, push, set, remove } from "firebase/database"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, getDoc } from "firebase/firestore"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { toast } from "sonner"
@@ -34,7 +34,7 @@ import type { Notification as ParishNotification } from "@/types/notification"
 
 export default function ParishComunicadosPage() {
   const { user } = useAuth()
-  const [notifications, setNotifications] = useState<ParishNotification[]>([])
+  const [processedNotifications, setProcessedNotifications] = useState<ParishNotification[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState("todos")
@@ -69,17 +69,53 @@ export default function ParishComunicadosPage() {
         // Sort by timestamp (newest first)
         notificationsList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
-        setNotifications(notificationsList)
+        // Processar as imagens do Firestore
+        processNotificationImages(notificationsList)
       } else {
-        setNotifications([])
+        setProcessedNotifications([])
       }
     } catch (error) {
       console.error("Error fetching notifications:", error)
       toast.error("Erro ao carregar comunicados")
-    } finally {
       setLoading(false)
     }
   }, [user])
+
+  // Função para processar as imagens do Firestore
+  const processNotificationImages = async (notificationsList: ParishNotification[]) => {
+    try {
+      const processed = await Promise.all(
+        notificationsList.map(async (notification) => {
+          if (
+            notification.imageUrl &&
+            typeof notification.imageUrl === "string" &&
+            notification.imageUrl.startsWith("firestore:")
+          ) {
+            try {
+              const imageId = notification.imageUrl.replace("firestore:", "")
+              const imageDoc = await getDoc(doc(firestore, "images", imageId))
+
+              if (imageDoc.exists()) {
+                return {
+                  ...notification,
+                  imageUrl: imageDoc.data().data,
+                }
+              }
+            } catch (error) {
+              console.error("Erro ao buscar imagem do Firestore:", error)
+            }
+          }
+          return notification
+        }),
+      )
+
+      setProcessedNotifications(processed)
+    } catch (error) {
+      console.error("Erro ao processar imagens:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetchNotifications()
@@ -137,7 +173,7 @@ export default function ParishComunicadosPage() {
         await setDoc(doc(firestore, "images", imageId), {
           data: imageUrl,
           createdAt: new Date().toISOString(),
-          parishId: parishId
+          parishId: parishId,
         })
         // Atualizar a URL para referenciar o ID no Firestore
         imageUrl = `firestore:${imageId}`
@@ -229,7 +265,7 @@ export default function ParishComunicadosPage() {
     setSelectedNotification(null)
   }
 
-  const filteredNotifications = notifications.filter((notification) => {
+  const filteredNotifications = processedNotifications.filter((notification) => {
     // Filter by search term
     const matchesSearch =
       notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -276,7 +312,7 @@ export default function ParishComunicadosPage() {
             Anúncio
           </Badge>
         )
-    }
+      }
   }
 
   return (
@@ -471,20 +507,22 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
-                        {notification.imageUrl && (
-                          <div className={styles.notificationImageContainer}>
-                            <div className={styles.notificationImageWrapper}>
-                              <Image
-                                src={notification.imageUrl || "/placeholder.svg"}
-                                alt={`Imagem para ${notification.title}`}
-                                className={styles.notificationImage}
-                                width={500}
-                                height={300}
-                                layout="responsive"
-                              />
+                        {notification.imageUrl &&
+                          typeof notification.imageUrl === "string" &&
+                          !notification.imageUrl.startsWith("firestore:") && (
+                            <div className={styles.notificationImageContainer}>
+                              <div className={styles.notificationImageWrapper}>
+                                <Image
+                                  src={notification.imageUrl || "/placeholder.svg"}
+                                  alt={`Imagem para ${notification.title}`}
+                                  className={styles.notificationImage}
+                                  width={500}
+                                  height={300}
+                                  layout="responsive"
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
@@ -550,20 +588,22 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
-                        {notification.imageUrl && (
-                          <div className={styles.notificationImageContainer}>
-                            <div className={styles.notificationImageWrapper}>
-                              <Image
-                                src={notification.imageUrl || "/placeholder.svg"}
-                                alt={`Imagem para ${notification.title}`}
-                                className={styles.notificationImage}
-                                width={500}
-                                height={300}
-                                layout="responsive"
-                              />
+                        {notification.imageUrl &&
+                          typeof notification.imageUrl === "string" &&
+                          !notification.imageUrl.startsWith("firestore:") && (
+                            <div className={styles.notificationImageContainer}>
+                              <div className={styles.notificationImageWrapper}>
+                                <Image
+                                  src={notification.imageUrl || "/placeholder.svg"}
+                                  alt={`Imagem para ${notification.title}`}
+                                  className={styles.notificationImage}
+                                  width={500}
+                                  height={300}
+                                  layout="responsive"
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
@@ -630,20 +670,22 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
-                        {notification.imageUrl && (
-                          <div className={styles.notificationImageContainer}>
-                            <div className={styles.notificationImageWrapper}>
-                              <Image
-                                src={notification.imageUrl || "/placeholder.svg"}
-                                alt={`Imagem para ${notification.title}`}
-                                className={styles.notificationImage}
-                                width={500}
-                                height={300}
-                                layout="responsive"
-                              />
+                        {notification.imageUrl &&
+                          typeof notification.imageUrl === "string" &&
+                          !notification.imageUrl.startsWith("firestore:") && (
+                            <div className={styles.notificationImageContainer}>
+                              <div className={styles.notificationImageWrapper}>
+                                <Image
+                                  src={notification.imageUrl || "/placeholder.svg"}
+                                  alt={`Imagem para ${notification.title}`}
+                                  className={styles.notificationImage}
+                                  width={500}
+                                  height={300}
+                                  layout="responsive"
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
@@ -709,20 +751,22 @@ export default function ParishComunicadosPage() {
                           {getTypeBadge(notification.type)}
                         </div>
                         <p className={styles.notificationMessage}>{notification.message}</p>
-                        {notification.imageUrl && (
-                          <div className={styles.notificationImageContainer}>
-                            <div className={styles.notificationImageWrapper}>
-                              <Image
-                                src={notification.imageUrl || "/placeholder.svg"}
-                                alt={`Imagem para ${notification.title}`}
-                                className={styles.notificationImage}
-                                width={500}
-                                height={300}
-                                layout="responsive"
-                              />
+                        {notification.imageUrl &&
+                          typeof notification.imageUrl === "string" &&
+                          !notification.imageUrl.startsWith("firestore:") && (
+                            <div className={styles.notificationImageContainer}>
+                              <div className={styles.notificationImageWrapper}>
+                                <Image
+                                  src={notification.imageUrl || "/placeholder.svg"}
+                                  alt={`Imagem para ${notification.title}`}
+                                  className={styles.notificationImage}
+                                  width={500}
+                                  height={300}
+                                  layout="responsive"
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                         <span className={styles.notificationTime}>
                           {formatDistanceToNow(new Date(notification.timestamp), {
                             addSuffix: true,
