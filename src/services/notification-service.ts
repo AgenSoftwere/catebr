@@ -2,10 +2,11 @@ import { database } from "@/lib/firebase"
 import { ref, set, get, push, remove } from "firebase/database"
 import type { Notification, ParishNotification } from "@/types/notification"
 
+// Fix the getNotificationsForUser function to properly fetch notifications from the selected parish
 export async function getNotificationsForUser(userId: string): Promise<Notification[]> {
   try {
     // Get user's selected parish
-    const selectedParishId = typeof window !== 'undefined' ? localStorage.getItem("selectedParish") : null
+    const selectedParishId = typeof window !== "undefined" ? localStorage.getItem("selectedParish") : null
 
     if (!selectedParishId) {
       return []
@@ -23,8 +24,14 @@ export async function getNotificationsForUser(userId: string): Promise<Notificat
         const notification = notifications[key]
 
         // Check if user has read this notification
-        const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
-        const userReadSnapshot = await get(userReadRef)
+        let isRead = false
+        try {
+          const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
+          const userReadSnapshot = await get(userReadRef)
+          isRead = userReadSnapshot.exists()
+        } catch (error) {
+          console.error("Error checking read status:", error)
+        }
 
         notificationList.push({
           id: key,
@@ -32,7 +39,7 @@ export async function getNotificationsForUser(userId: string): Promise<Notificat
           message: notification.message || "",
           type: notification.type || "announcement",
           timestamp: notification.timestamp || new Date().toISOString(),
-          read: userReadSnapshot.exists(),
+          read: isRead,
           imageUrl: notification.imageUrl || null,
         })
       }
@@ -43,7 +50,7 @@ export async function getNotificationsForUser(userId: string): Promise<Notificat
     return []
   } catch (error) {
     console.error("Error getting notifications:", error)
-    throw error
+    return [] // Return empty array instead of throwing error
   }
 }
 

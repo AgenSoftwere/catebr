@@ -11,12 +11,13 @@ import { Church } from "lucide-react"
 import styles from "./page.module.css"
 
 export default function ComunicadosPage() {
-  const { loading } = useAuth() // 'user' removido, pois não estava sendo usado
+  const { loading, user } = useAuth()
   const [selectedParish, setSelectedParish] = useState<string | null>(null)
   const [selectedParishName, setSelectedParishName] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
+    // Get selected parish from localStorage
     const storedParish = localStorage.getItem("selectedParish")
     const storedParishName = localStorage.getItem("selectedParishName")
 
@@ -49,9 +50,7 @@ export default function ComunicadosPage() {
           <div className={styles.parishSelectionHeader}>
             <Church className={styles.parishIcon} />
             <h1 className={styles.title}>Selecione uma Paróquia</h1>
-            <p className={styles.subtitle}>
-              Para ver os comunicados, selecione uma paróquia de sua preferência
-            </p>
+            <p className={styles.subtitle}>Para ver os comunicados, selecione uma paróquia de sua preferência</p>
           </div>
 
           <ParishSelector onSelect={handleParishSelect} />

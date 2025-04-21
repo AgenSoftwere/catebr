@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Notification } from "@/types/notification"
 import { useAuth } from "@/hooks/use-auth"
-import { getNotificationsForUser } from "@/services/notification-service"
+import { getNotificationsForUser, markNotificationAsRead } from "@/services/notification-service"
 
 interface NotificationContextType {
   notifications: Notification[]
@@ -33,27 +33,45 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
       fetchNotifications()
 
-      // Set up real-time listener for new notifications
-      // This would be implemented with Firebase Realtime Database
+      // Set up interval to refresh notifications every 30 seconds
+      const intervalId = setInterval(fetchNotifications, 30000)
+
+      // Clean up interval on unmount
+      return () => clearInterval(intervalId)
     }
   }, [user, loading])
 
   const hasUnreadNotifications = notifications.some((notification) => !notification.read)
 
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
-    )
+  const markAsRead = async (id: string) => {
+    if (!user) return
 
-    // Update in Firebase
-    // This would be implemented with Firebase Realtime Database
+    try {
+      await markNotificationAsRead(user.uid, id)
+
+      setNotifications((prev) =>
+        prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
+      )
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
+  const markAllAsRead = async () => {
+    if (!user) return
 
-    // Update in Firebase
-    // This would be implemented with Firebase Realtime Database
+    try {
+      // Mark all notifications as read in Firebase
+      const promises = notifications
+        .filter((notification) => !notification.read)
+        .map((notification) => markNotificationAsRead(user.uid, notification.id))
+
+      await Promise.all(promises)
+
+      setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error)
+    }
   }
 
   const addNotification = (notification: Omit<Notification, "id" | "timestamp" | "read">) => {
@@ -65,9 +83,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
 
     setNotifications((prev) => [newNotification, ...prev])
-
-    // Add to Firebase
-    // This would be implemented with Firebase Realtime Database
   }
 
   return (

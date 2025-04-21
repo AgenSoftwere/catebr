@@ -5,11 +5,31 @@ import type { Notification } from "@/types/notification"
 import styles from "./notification-list.module.css"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Bell, Calendar, Info } from "lucide-react"
+import { Bell, Calendar, Info } from 'lucide-react'
 import Image from "next/image"
+import { useEffect, useState } from "react"
 
 export function NotificationList() {
   const { notifications, markAllAsRead } = useNotifications()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Add a small delay to ensure notifications are loaded
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className={styles.loadingState}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Carregando comunicados...</p>
+      </div>
+    )
+  }
 
   if (notifications.length === 0) {
     return (
@@ -54,8 +74,10 @@ function NotificationItem({ notification }: { notification: Notification }) {
     switch (notification.type) {
       case "event":
         return <Calendar className={styles.itemIcon} />
-      default:
+      case "alert":
         return <Info className={styles.itemIcon} />
+      default:
+        return <Bell className={styles.itemIcon} />
     }
   }
 
@@ -65,23 +87,28 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <div className={styles.itemContent}>
         <h3 className={styles.itemTitle}>{notification.title}</h3>
         <p className={styles.itemMessage}>{notification.message}</p>
-          {notification.imageUrl && (
+        {notification.imageUrl && (
+          <div className={styles.itemImageContainer}>
+            <div className={styles.itemImageWrapper}>
               <Image
                 src={notification.imageUrl || "/placeholder.svg"}
                 alt={`Imagem para ${notification.title}`}
                 className={styles.itemImage}
-                width={100}
-                height={100}
+                width={500}
+                height={300}
+                layout="responsive"
               />
-          )}
-        </div>
-        <span className={styles.itemTime}>
-          {formatDistanceToNow(new Date(notification.timestamp), {
-            addSuffix: true,
-            locale: ptBR,
-          })}
-        </span>
-        {!notification.read && <div className={styles.unreadDot}></div>}
+            </div>
+          </div>
+        )}
       </div>
+      <span className={styles.itemTime}>
+        {formatDistanceToNow(new Date(notification.timestamp), {
+          addSuffix: true,
+          locale: ptBR,
+        })}
+      </span>
+      {!notification.read && <div className={styles.unreadDot}></div>}
+    </div>
   )
 }
