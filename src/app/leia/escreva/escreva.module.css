@@ -175,6 +175,45 @@
   background-color: white;
 }
 
+/* Estilos para o editor Quill */
+.editor :global(.ql-toolbar) {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.editor :global(.ql-container) {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.editor :global(.ql-editor) {
+  min-height: 350px;
+  font-family: inherit;
+  line-height: 1.7;
+}
+
+.editor :global(.ql-editor h1),
+.editor :global(.ql-editor h2),
+.editor :global(.ql-editor h3) {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.editor :global(.ql-editor p) {
+  margin-bottom: 1rem;
+}
+
+.editor :global(.ql-editor blockquote) {
+  border-left: 4px solid #e2e8f0;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #64748b;
+}
+
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
@@ -216,57 +255,18 @@
   animation: spin 1s linear infinite;
 }
 
-/* Estilos para o editor Quill */
-.ql-toolbar {
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  background-color: #f8fafc;
-}
-
-.ql-container {
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-  font-size: 1rem;
-}
-
-.ql-editor {
-  min-height: 350px;
-  font-family: inherit;
-  line-height: 1.7;
-}
-
-.ql-editor h1,
-.ql-editor h2,
-.ql-editor h3 {
-  font-weight: 600;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-:global(.ql-editor p) {
-  margin-bottom: 1rem;
-}
-
-:global(.ql-editor blockquote) {
-  border-left: 4px solid #e2e8f0;
-  padding-left: 1rem;
-  font-style: italic;
-  color: #64748b;
-}
-
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .actions {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .editor {
     height: 300px;
   }

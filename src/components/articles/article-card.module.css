@@ -122,7 +122,8 @@
     gap: 1rem;
   }
   
-  .date, .views {
+  .date,
+  .views {
     display: flex;
     align-items: center;
     gap: 0.25rem;

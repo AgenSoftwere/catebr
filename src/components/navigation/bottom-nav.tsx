@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Bell, Edit, BookOpen } from 'lucide-react'
+import { User, Bell, Edit, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import styles from "./bottom-nav.module.css"
@@ -29,10 +29,7 @@ export function BottomNav() {
         <span className={styles.label}>Comunicados</span>
       </Link>
 
-      <Link
-        href="/leia"
-        className={`${styles.navItem} ${pathname.includes("/leia") ? styles.active : ""}`}
-      >
+      <Link href="/leia" className={`${styles.navItem} ${pathname.includes("/leia") ? styles.active : ""}`}>
         <div className={styles.iconWrapper}>
           <BookOpen className={styles.icon} />
         </div>

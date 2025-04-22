@@ -1,13 +1,13 @@
-import Link from "next/link";
-import Image from "next/image";
-import { formatDate, truncateText } from "@/lib/utils";
-import type { Article } from "@/types/article";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Eye } from 'lucide-react';
-import styles from "./article-card.module.css";
+import Link from "next/link"
+import Image from "next/image"
+import { formatDate, truncateText } from "@/lib/utils"
+import type { Article } from "@/types/article"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, Eye } from "lucide-react"
+import styles from "./article-card.module.css"
 
 interface ArticleCardProps {
-  article: Article;
+  article: Article
 }
 
 export function ArticleCard({ article }: ArticleCardProps) {
@@ -15,8 +15,8 @@ export function ArticleCard({ article }: ArticleCardProps) {
     article: "Artigo",
     news: "Notícia",
     reflection: "Reflexão",
-    testimony: "Depoimento"
-  };
+    testimony: "Depoimento",
+  }
 
   return (
     <Link href={`/leia/${article.id}`} className={styles.card}>
@@ -39,11 +39,11 @@ export function ArticleCard({ article }: ArticleCardProps) {
           {articleTypeLabel[article.type]}
         </Badge>
       </div>
-      
+
       <div className={styles.content}>
         <h3 className={styles.title}>{article.title}</h3>
         <p className={styles.subtitle}>{truncateText(article.subtitle, 120)}</p>
-        
+
         <div className={styles.meta}>
           <div className={styles.author}>
             {article.authorImage ? (
@@ -59,7 +59,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
             )}
             <span className={styles.authorName}>{article.authorName}</span>
           </div>
-          
+
           <div className={styles.stats}>
             <span className={styles.date}>
               <Calendar className={styles.icon} />
@@ -71,7 +71,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
             </span>
           </div>
         </div>
-        
+
         <div className={styles.tags}>
           {article.tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="outline" className={styles.tag}>
@@ -86,5 +86,5 @@ export function ArticleCard({ article }: ArticleCardProps) {
         </div>
       </div>
     </Link>
-  );
+  )
 }
