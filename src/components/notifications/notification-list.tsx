@@ -5,7 +5,7 @@ import type { Notification } from "@/types/notification"
 import styles from "./notification-list.module.css"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Bell, Calendar, Info } from 'lucide-react'
+import { Bell, Calendar, Info } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { getNotificationsForUser } from "@/services/notification-service"
@@ -23,12 +23,12 @@ export function NotificationList({ parishId }: NotificationListProps) {
   const { user } = useAuth()
 
   useEffect(() => {
-    let isMounted = true;
-    
+    let isMounted = true
+
     async function fetchNotifications() {
       if (!parishId) {
         console.log("Nenhum ID de paróquia fornecido")
-        if (isMounted) setIsLoading(false)
+        setIsLoading(false)
         return
       }
 
@@ -36,7 +36,7 @@ export function NotificationList({ parishId }: NotificationListProps) {
         console.log("Buscando notificações para a paróquia:", parishId)
         const userId = user?.uid || "anonymous"
         const fetchedNotifications = await getNotificationsForUser(userId, parishId)
-        console.log("Notificações encontradas:", fetchedNotifications.length)
+        console.log("Notificações encontradas:", fetchedNotifications.length, fetchedNotifications)
 
         // Processar imagens do Firestore
         const processedNotifications = await Promise.all(
@@ -66,21 +66,27 @@ export function NotificationList({ parishId }: NotificationListProps) {
 
         if (isMounted) {
           setNotifications(processedNotifications)
-          setIsLoading(false)
         }
       } catch (error) {
         console.error("Erro ao buscar notificações:", error)
-        if (isMounted) setIsLoading(false)
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchNotifications()
-    
-    // Cleanup function para evitar memory leaks e atualizações em componentes desmontados
+
+    // Use a reasonable interval for updates (30 seconds)
+    const intervalId = setInterval(fetchNotifications, 30000)
+
+    // Clean up function to prevent memory leaks and excessive requests
     return () => {
-      isMounted = false;
+      isMounted = false
+      clearInterval(intervalId)
     }
-  }, [parishId, user, setNotifications]); // Dependências corretas
+  }, [parishId, user, setNotifications])
 
   if (isLoading) {
     return (

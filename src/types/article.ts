@@ -1,39 +1,33 @@
-// Add or update the Article type definition
+export type ArticleType = "artigo" | "noticia" | "reflexao" | "depoimento";
+
 export interface Article {
-    id: string
-    uid: string
-    title: string
-    subtitle?: string
-    content: string
-    type: string
-    tags: string[]
-    coverImage: string | null
-    publishedAt: string
-    updatedAt?: string
-    slug: string
-    authorName: string
-    authorImage: string | null
-    views: number
-    featured: boolean
-  }
-  
-  export type ArticleType = "article" | "news" | "reflection" | "testimony"
-  
-  export interface ArticleFilter {
-    type?: string
-    tag?: string
-    searchTerm?: string
-  }
-  
-  export interface ArticleFormData {
-    title: string
-    subtitle?: string
-    content: string
-    type: string
-    tags: string[]
-    coverImage: string | null
-    authorId?: string
-    authorName?: string
-    authorImage?: string | null
-  }
-  
+  id: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  authorImage?: string;
+  type: ArticleType;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  imageUrl?: string;
+  slug: string;
+  published: boolean;
+  views: number;
+  coverImage?: string
+  readTime?: number
+}
+
+export interface ArticleFormData {
+  title: string;
+  subtitle: string;
+  content: string;
+  type: ArticleType;
+  tags: string[];
+  imageUrl?: string;
+  coverImage: string | null
+  authorName?: string
+  authorImage?: string
+}

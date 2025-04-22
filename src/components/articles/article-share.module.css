@@ -1,0 +1,29 @@
+.shareButton {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .shareButton:hover {
+    background-color: #f1f5f9;
+    transform: translateY(-2px);
+  }
+  
+  .shareIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .shareMenuItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+  }
+  
+  .platformIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  

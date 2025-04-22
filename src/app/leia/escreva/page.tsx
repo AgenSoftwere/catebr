@@ -1,63 +1,499 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
-import { ArticleEditor } from "@/components/articles/article-editor"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from 'lucide-react'
-import styles from "./page.module.css"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
+import { ArrowLeft, ImageIcon, X, Loader2 } from 'lucide-react'
+import { createArticle, getArticleById, updateArticle } from "@/services/article-service"
+import { ArticleFormData, ArticleType } from "@/types/article"
+import { firestore } from "@/lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
+import Image from "next/image"
+import dynamic from "next/dynamic"
+import styles from "./escreva.module.css"
+
+// Importar o editor de texto de forma dinâmica para evitar problemas de SSR
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
+import "react-quill/dist/quill.snow.css"
 
 export default function EscrevaPage() {
-  const { user, loading } = useAuth()
   const router = useRouter()
-  
+  const searchParams = useSearchParams()
+  const { user, loading: authLoading } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
+  const [showExitDialog, setShowExitDialog] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [articleId, setArticleId] = useState<string | null>(null)
+  const [formData, setFormData] = useState<ArticleFormData>({
+    title: "",
+    subtitle: "",
+    content: "",
+    type: "artigo",
+    coverImage: null,
+    tags: [],
+  })
+  const [tagInput, setTagInput] = useState("")
+  const tagInputRef = useRef<HTMLInputElement>(null)
+
+  // Verificar se o usuário é escritor
+  const isWriter = user?.contributions && Array.isArray(user.contributions) && user.contributions.includes("escritor")
+
+  // Verificar se estamos em modo de edição
   useEffect(() => {
-    // Verificar se o usuário está autenticado e é escritor
-    if (!loading && user) {
-      const isWriter = Array.isArray(user.contributions) && user.contributions.includes("escritor")
+    const editId = searchParams.get("edit")
+    if (editId) {
+      setEditMode(true)
+      setArticleId(editId)
+      fetchArticleForEdit(editId)
+    }
+  }, [searchParams])
+
+  // Buscar artigo para edição
+  const fetchArticleForEdit = async (id: string) => {
+    try {
+      setIsLoading(true)
+      const article = await getArticleById(id)
       
-      if (!isWriter) {
-        router.push("/contribuicoes")
+      if (article) {
+        // Verificar se o usuário atual é o autor
+        if (user && article.authorId !== user.uid) {
+          toast.error("Você não tem permissão para editar este artigo")
+          router.push("/leia")
+          return
+        }
+        
+        // Carregar imagem de capa do Firestore se necessário
+        let coverImage = article.coverImage
+        if (coverImage && coverImage.startsWith("firestore:")) {
+          const imageId = coverImage.replace("firestore:", "")
+          const imageDoc = await getDoc(doc(firestore, "images", imageId))
+          
+          if (imageDoc.exists()) {
+            coverImage = imageDoc.data().data
+          }
+        }
+        
+        setFormData({
+          title: article.title,
+          subtitle: article.subtitle,
+          content: article.content,
+          type: article.type,
+          coverImage: coverImage || null,
+          tags: article.tags || [],
+        })
+      } else {
+        toast.error("Artigo não encontrado")
+        router.push("/leia")
       }
-    } else if (!loading && !user) {
+    } catch (error) {
+      console.error("Erro ao buscar artigo para edição:", error)
+      toast.error("Erro ao carregar artigo para edição")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Redirecionar se não for escritor
+  useEffect(() => {
+    if (!authLoading && user && !isWriter) {
+      toast.error("Você precisa ser um escritor para acessar esta página")
+      router.push("/contribuicoes")
+    }
+    
+    if (!authLoading && !user) {
+      toast.error("Você precisa estar logado para acessar esta página")
       router.push("/auth/o/login")
     }
-  }, [user, loading, router])
-  
-  if (loading) {
+  }, [user, isWriter, authLoading, router])
+
+  // Manipuladores de formulário
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleEditorChange = (content: string) => {
+    setFormData(prev => ({ ...prev, content }))
+  }
+
+  const handleTypeChange = (value: string) => {
+    setFormData(prev => ({ ...prev, type: value as ArticleType }))
+  }
+
+  const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Verificar tamanho (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setFormData(prev => ({ ...prev, coverImage: base64String }))
+    }
+    reader.onerror = () => {
+      toast.error("Erro ao processar a imagem")
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeCoverImage = () => {
+    setFormData(prev => ({ ...prev, coverImage: null }))
+  }
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault()
+      
+      if (formData.tags.includes(tagInput.trim())) {
+        toast.error("Esta tag já foi adicionada")
+        return
+      }
+      
+      if (formData.tags.length >= 5) {
+        toast.error("Máximo de 5 tags permitidas")
+        return
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()]
+      }))
+      setTagInput("")
+    }
+  }
+
+  const removeTag = (tagToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }))
+  }
+
+  // Validação do formulário
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      toast.error("O título é obrigatório")
+      return false
+    }
+    
+    if (!formData.subtitle.trim()) {
+      toast.error("O subtítulo é obrigatório")
+      return false
+    }
+    
+    if (!formData.content.trim() || formData.content === "<p><br></p>") {
+      toast.error("O conteúdo é obrigatório")
+      return false
+    }
+    
+    if (formData.tags.length === 0) {
+      toast.error("Adicione pelo menos uma tag")
+      return false
+    }
+    
+    return true
+  }
+
+  // Publicar artigo
+  const handlePublish = async () => {
+    if (!user) {
+      toast.error("Você precisa estar logado para publicar")
+      return
+    }
+    
+    if (!validateForm()) {
+      return
+    }
+    
+    try {
+      setIsPublishing(true)
+      
+      if (editMode && articleId) {
+        // Atualizar artigo existente
+        await updateArticle(articleId, formData)
+        toast.success("Artigo atualizado com sucesso!")
+      } else {
+        // Criar novo artigo
+        await createArticle(
+          user.uid,
+          {
+            ...formData,
+            authorName: user.displayName || "Autor",
+            authorImage: typeof user.profileImage === "string" ? user.profileImage : undefined
+          }
+        )
+        toast.success("Artigo publicado com sucesso!")
+      }
+      
+      router.push("/leia")
+    } catch (error) {
+      console.error("Erro ao publicar artigo:", error)
+      toast.error("Erro ao publicar artigo. Tente novamente.")
+    } finally {
+      setIsPublishing(false)
+    }
+  }
+
+  // Configurações do editor
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['blockquote', 'code-block'],
+      ['link', 'image'],
+      [{ 'align': [] }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['clean']
+    ]
+  }
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'blockquote', 'code-block',
+    'link', 'image',
+    'align',
+    'color', 'background'
+  ]
+
+  // Manipular saída
+  const handleExit = () => {
+    if (
+      formData.title.trim() ||
+      formData.subtitle.trim() ||
+      (formData.content && formData.content !== "<p><br></p>") ||
+      formData.coverImage ||
+      formData.tags.length > 0
+    ) {
+      setShowExitDialog(true)
+    } else {
+      router.push("/leia")
+    }
+  }
+
+  if (authLoading || isLoading) {
     return (
       <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
+        <Loader2 className={styles.loadingSpinner} />
         <p>Carregando...</p>
       </div>
     )
   }
-  
-  // Verificar se o usuário é escritor
-  const isWriter = user && Array.isArray(user.contributions) && user.contributions.includes("escritor")
-  
-  if (!isWriter) {
-    return null // Será redirecionado pelo useEffect
+
+  if (!user || !isWriter) {
+    return null // Redirecionamento já está sendo tratado no useEffect
   }
-  
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Button
-          variant="ghost"
-          className={styles.backButton}
-          onClick={() => router.push("/leia")}
-        >
+        <Button variant="ghost" className={styles.backButton} onClick={handleExit}>
           <ArrowLeft className={styles.backIcon} />
-          Voltar
+          <span>Voltar</span>
         </Button>
-        <h1 className={styles.title}>Escreva seu conteúdo</h1>
+        
+        <div className={styles.actions}>
+          <Button 
+            variant="outline" 
+            className={styles.saveButton} 
+            disabled={isSaving || isPublishing}
+            onClick={() => toast.info("Recurso de rascunho em desenvolvimento")}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className={`${styles.actionIcon} ${styles.spinner}`} />
+                <span>Salvando...</span>
+              </>
+            ) : (
+              <span>Salvar rascunho</span>
+            )}
+          </Button>
+          
+          <Button 
+            className={styles.publishButton} 
+            disabled={isSaving || isPublishing}
+            onClick={handlePublish}
+          >
+            {isPublishing ? (
+              <>
+                <Loader2 className={`${styles.actionIcon} ${styles.spinner}`} />
+                <span>Publicando...</span>
+              </>
+            ) : (
+              <span>{editMode ? "Atualizar" : "Publicar"}</span>
+            )}
+          </Button>
+        </div>
       </div>
       
       <div className={styles.content}>
-        <ArticleEditor />
+        <div className={styles.formGroup}>
+          <Label htmlFor="type" className={styles.label}>Tipo de conteúdo</Label>
+          <Select value={formData.type} onValueChange={handleTypeChange}>
+            <SelectTrigger className={styles.select}>
+              <SelectValue placeholder="Selecione o tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="artigo">Artigo</SelectItem>
+              <SelectItem value="noticia">Notícia</SelectItem>
+              <SelectItem value="reflexao">Reflexão</SelectItem>
+              <SelectItem value="depoimento">Depoimento</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className={styles.formGroup}>
+          <Label htmlFor="title" className={styles.label}>Título</Label>
+          <Input
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Digite um título atrativo"
+            className={styles.input}
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <Label htmlFor="subtitle" className={styles.label}>Subtítulo</Label>
+          <Textarea
+            id="subtitle"
+            name="subtitle"
+            value={formData.subtitle}
+            onChange={handleChange}
+            placeholder="Escreva um breve resumo"
+            className={styles.textarea}
+            rows={2}
+          />
+        </div>
+        
+        <div className={styles.formGroup}>
+          <Label htmlFor="coverImage" className={styles.label}>Imagem de capa (opcional)</Label>
+          {formData.coverImage ? (
+            <div className={styles.coverPreviewContainer}>
+              <Image
+                src={formData.coverImage || "/placeholder.svg"}
+                alt="Imagem de capa"
+                width={800}
+                height={400}
+                className={styles.coverPreview}
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                className={styles.removeCoverButton}
+                onClick={removeCoverImage}
+              >
+                <X className={styles.removeCoverIcon} />
+              </Button>
+            </div>
+          ) : (
+            <div className={styles.coverUploadContainer}>
+              <Label htmlFor="cover-upload" className={styles.coverUploadLabel}>
+                <ImageIcon className={styles.coverUploadIcon} />
+                <span>Clique para adicionar uma imagem de capa</span>
+                <p className={styles.coverUploadHelp}>Recomendado: 1200 x 600px (máx. 5MB)</p>
+              </Label>
+              <Input
+                id="cover-upload"
+                type="file"
+                accept="image/jpeg, image/png, image/webp"
+                onChange={handleCoverImageUpload}
+                className={styles.coverUploadInput}
+              />
+            </div>
+          )}
+        </div>
+        
+        <div className={styles.formGroup}>
+          <Label htmlFor="content" className={styles.label}>Conteúdo</Label>
+          <div className={styles.editorContainer}>
+            <ReactQuill
+              theme="snow"
+              value={formData.content}
+              onChange={handleEditorChange}
+              modules={modules}
+              formats={formats}
+              placeholder="Escreva seu conteúdo aqui..."
+              className={styles.editor}
+            />
+          </div>
+        </div>
+        
+        <div className={styles.formGroup}>
+          <Label htmlFor="tags" className={styles.label}>
+            Tags (máx. 5) - Pressione Enter para adicionar
+          </Label>
+          <Input
+            id="tags"
+            ref={tagInputRef}
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleAddTag}
+            placeholder="Adicione tags relevantes"
+            className={styles.input}
+            disabled={formData.tags.length >= 5}
+          />
+          
+          <div className={styles.tagsContainer}>
+            {formData.tags.map(tag => (
+              <Badge key={tag} className={styles.tag}>
+                {tag}
+                <X className={styles.removeTagIcon} onClick={() => removeTag(tag)} />
+              </Badge>
+            ))}
+          </div>
+        </div>
       </div>
+      
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deseja sair sem salvar?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você tem alterações não salvas. Se sair agora, essas alterações serão perdidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => router.push("/leia")}>
+              Sair sem salvar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

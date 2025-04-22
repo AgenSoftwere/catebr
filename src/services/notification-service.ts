@@ -49,7 +49,7 @@ async function getParishUserId(parishId: string): Promise<string | null> {
 
       // Verificar se existe algum nó com notificações para esta paróquia
       for (const notificationUserId in notifications) {
-        // Verificar se este usuário está associado à paróquia
+        // Verificar se este usuário est associado à paróquia
         const userRef = ref(database, `users/${notificationUserId}`)
         const userSnapshot = await get(userRef)
 
@@ -74,7 +74,7 @@ async function getParishUserId(parishId: string): Promise<string | null> {
   }
 }
 
-// Função para buscar notificações para um usuário
+// Optimize the getNotificationsForUser function to reduce redundant Firestore calls
 export async function getNotificationsForUser(userId: string, parishId: string): Promise<Notification[]> {
   try {
     console.log(`Buscando notificações para usuário ${userId} na paróquia ${parishId}`)
@@ -84,8 +84,19 @@ export async function getNotificationsForUser(userId: string, parishId: string):
       return []
     }
 
-    // Obter o ID do usuário da paróquia
-    const parishUserId = await getParishUserId(parishId)
+    // Cache the parish user ID to avoid redundant lookups
+    const parishUserIdCache = new Map<string, string | null>()
+
+    // Check if we have the parish user ID in cache
+    let parishUserId: string | null
+    if (parishUserIdCache.has(parishId)) {
+      parishUserId = parishUserIdCache.get(parishId)!
+    } else {
+      // Obter o ID do usuário da paróquia
+      parishUserId = await getParishUserId(parishId)
+      // Cache the result
+      parishUserIdCache.set(parishId, parishUserId)
+    }
 
     if (!parishUserId) {
       console.error("Não foi possível determinar o ID do usuário da paróquia")
@@ -108,19 +119,26 @@ export async function getNotificationsForUser(userId: string, parishId: string):
     const notifications = notificationsSnapshot.val()
     const notificationList: Notification[] = []
 
-    for (const key in notifications) {
-      const notification = notifications[key]
-      console.log(`Processando notificação ${key}:`, notification)
+    // Batch read operations for user read status
+    const readStatusPromises: Promise<import("firebase/database").DataSnapshot>[] = []
+    const notificationKeys: string[] = []
 
-      // Check if user has read this notification
-      let isRead = false
-      try {
-        const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
-        const userReadSnapshot = await get(userReadRef)
-        isRead = userReadSnapshot.exists()
-      } catch (error) {
-        console.error("Erro ao verificar status de leitura:", error)
-      }
+    for (const key in notifications) {
+      notificationKeys.push(key)
+      const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
+      readStatusPromises.push(get(userReadRef))
+    }
+
+    // Execute all read status checks in parallel
+    const readStatusResults = await Promise.all(readStatusPromises)
+
+    // Now process notifications with the read status results
+    for (let i = 0; i < notificationKeys.length; i++) {
+      const key = notificationKeys[i]
+      const notification = notifications[key]
+      const isRead = readStatusResults[i].exists()
+
+      console.log(`Processando notificação ${key}:`, notification)
 
       notificationList.push({
         id: key,

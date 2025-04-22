@@ -1,0 +1,240 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 70px; /* Espaço para o bottom nav */
+    background-color: #f8fafc;
+  }
+  
+  .content {
+    flex: 1;
+    padding: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .backButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    margin-right: 1rem;
+  }
+  
+  .backIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .tabs {
+    margin-bottom: 2rem;
+  }
+  
+  .tabsList {
+    background-color: #f8fafc;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tabContent {
+    min-height: 300px;
+  }
+  
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .emptyText {
+    font-size: 1rem;
+    color: #64748b;
+  }
+  
+  .articlesList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .articleCard {
+    transition: all 0.2s ease;
+  }
+  
+  .articleCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .articleHeader {
+    padding-bottom: 0.75rem;
+  }
+  
+  .articleTitleContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .typeTag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+  }
+  
+  .articleType {
+    background-color: #3b82f6;
+  }
+  
+  .newsType {
+    background-color: #ef4444;
+  }
+  
+  .reflectionType {
+    background-color: #8b5cf6;
+  }
+  
+  .testimonialType {
+    background-color: #10b981;
+  }
+  
+  .articleTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .articleSubtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  
+  .articleContent {
+    padding-top: 0;
+    padding-bottom: 0.75rem;
+  }
+  
+  .articleMeta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+  
+  .articleTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .articleTag {
+    font-size: 0.75rem;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+  }
+  
+  .articleFooter {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+  }
+  
+  .articleActions {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  
+  .actionButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .actionIcon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  .deleteButton {
+    margin-left: auto;
+    color: #ef4444;
+    border-color: #fecaca;
+  }
+  
+  .deleteButton:hover {
+    background-color: #fee2e2;
+  }
+  
+  .writeButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .writeIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: #64748b;
+    gap: 1rem;
+  }
+  
+  .loadingSpinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .articleActions {
+      flex-wrap: wrap;
+    }
+    
+    .actionButton {
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .deleteButton {
+      margin-left: 0;
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+  }
+  

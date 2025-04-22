@@ -1,0 +1,98 @@
+.container {
+    width: 100%;
+  }
+  
+  .tabs {
+    margin-bottom: 2rem;
+  }
+  
+  .tabsList {
+    width: 100%;
+    justify-content: space-between;
+    background-color: #f8fafc;
+    padding: 0.25rem;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .item {
+    height: 100%;
+  }
+  
+  .loading, .empty, .error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    text-align: center;
+    color: #64748b;
+  }
+  
+  .spinner {
+    animation: spin 1s linear infinite;
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .empty h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty p {
+    color: #64748b;
+    max-width: 400px;
+  }
+  
+  .loadMore {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+  }
+  
+  .loadMoreButton {
+    min-width: 150px;
+  }
+  
+  .loadingIcon {
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  

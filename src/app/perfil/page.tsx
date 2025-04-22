@@ -5,14 +5,17 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { User, LogOut, Settings, Bell, Church, UserPlus, LogIn, Edit, Camera } from "lucide-react"
+import { User, Church, UserPlus, LogIn, Camera, BookOpen, LogOut } from "lucide-react"
 import Link from "next/link"
 import styles from "./page.module.css"
 import { VersionBadge } from "@/components/version-badge"
 import { firestore } from "@/lib/firebase"
 import { doc, getDoc } from "firebase/firestore"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
+import { getArticlesByAuthor } from "@/services/article-service"
+import type { Article, ArticleType } from "@/types/article"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { formatDate } from "@/lib/utils"
 
 export default function PerfilPage() {
   const { user, loading, signOut } = useAuth()
@@ -20,6 +23,8 @@ export default function PerfilPage() {
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [userArticles, setUserArticles] = useState<Article[]>([])
+  const [loadingArticles, setLoadingArticles] = useState(false)
 
   useEffect(() => {
     const fetchProfileImage = async () => {
@@ -45,6 +50,31 @@ export default function PerfilPage() {
     }
 
     fetchProfileImage()
+  }, [user])
+
+  // Buscar artigos do usuário se ele for escritor
+  useEffect(() => {
+    const fetchUserArticles = async () => {
+      if (!user) return
+
+      // Verificar se o usuário é escritor
+      const isWriter =
+        user.contributions && Array.isArray(user.contributions) && user.contributions.includes("escritor")
+
+      if (isWriter) {
+        try {
+          setLoadingArticles(true)
+          const articles = await getArticlesByAuthor(user.uid)
+          setUserArticles(articles)
+        } catch (error) {
+          console.error("Erro ao buscar artigos do usuário:", error)
+        } finally {
+          setLoadingArticles(false)
+        }
+      }
+    }
+
+    fetchUserArticles()
   }, [user])
 
   const handleSignOut = async () => {
@@ -189,43 +219,81 @@ export default function PerfilPage() {
           </div>
         </div>
 
+        {isWriter && (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Meus Conteúdos</h2>
+            {loadingArticles ? (
+              <p>Carregando seus conteúdos...</p>
+            ) : userArticles.length > 0 ? (
+              <div className={styles.articlesContainer}>
+                {userArticles.slice(0, 3).map((article) => (
+                  <Link href={`/leia/${article.id}`} key={article.id} className={styles.articleItem}>
+                    <h3 className={styles.articleTitle}>{article.title}</h3>
+                    <div className={styles.articleMeta}>
+                      <span className={styles.articleType}>
+                        {article.type === ("article" as ArticleType) && "Artigo"}
+                        {article.type === ("news" as ArticleType) && "Notícia"}
+                        {article.type === ("reflection" as ArticleType) && "Reflexão"}
+                        {article.type === ("testimony" as ArticleType) && "Depoimento"}
+                      </span>
+                      <span className={styles.articleDate}>{formatDate(article.createdAt)}</span>
+                    </div>
+                  </Link>
+                ))}
+                {userArticles.length > 3 && (
+                  <Link href="/leia/escreva" className={styles.viewMoreLink}>
+                    Ver todos ({userArticles.length})
+                  </Link>
+                )}
+                <Link href="/leia/escreva" className={styles.newArticleLink}>
+                  <Button variant="outline" className={styles.newArticleButton}>
+                    <BookOpen className={styles.buttonIcon} />
+                    Escrever novo conteúdo
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.emptyArticles}>
+                <p>Você ainda não publicou nenhum conteúdo.</p>
+                <Link href="/leia/escreva">
+                  <Button variant="outline" className={styles.newArticleButton}>
+                    <BookOpen className={styles.buttonIcon} />
+                    Escrever novo conteúdo
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Configurações</h2>
           <div className={styles.menuList}>
+            <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/editar")}>
+              Editar perfil
+            </Button>
             <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/notificacoes")}>
-              <Bell className={styles.menuIcon} />
-              <span>Notificações</span>
+              Preferências de notificação
             </Button>
-
-            <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/configuracoes")}>
-              <Settings className={styles.menuIcon} />
-              <span>Configurações da conta</span>
+            <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/senha")}>
+              Alterar senha
             </Button>
-
-            {isWriter && (
-              <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/contribuicoes")}>
-                <Edit className={styles.menuIcon} />
-                <span>Minhas Contribuições</span>
-              </Button>
-            )}
           </div>
-        </div>
 
-        <Button variant="destructive" className={styles.signOutButton} onClick={handleSignOut}>
-          <LogOut className={styles.signOutIcon} />
-          Sair da conta
-        </Button>
+          <Button variant="destructive" className={styles.signOutButton} onClick={handleSignOut}>
+            <LogOut className={styles.signOutIcon} />
+            Sair da conta
+          </Button>
+        </div>
 
         <div className={styles.versionContainer}>
           <VersionBadge />
         </div>
       </div>
 
+      {/* Modal para visualizar a imagem de perfil em tamanho maior */}
       <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
         <DialogContent className={styles.imageModalContent}>
-          <DialogHeader>
-            <DialogTitle>Foto de Perfil</DialogTitle>
-          </DialogHeader>
           <div className={styles.imageModalContainer}>
             {profileImage && (
               <Image
