@@ -8,7 +8,7 @@ import {
   sendEmailVerification,
   GoogleAuthProvider,
   signInWithPopup,
-  AuthError,
+  type AuthError,
 } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { createUserProfile } from "@/services/user-service"
@@ -21,18 +21,48 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
+  // Na função signIn, vamos adicionar validação básica e melhorar o tratamento de erros
   const signIn = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
     setError(null)
 
+    // Validação básica
+    if (!email || !email.includes("@")) {
+      setError("Por favor, insira um email válido.")
+      setIsLoading(false)
+      return false
+    }
+
+    if (!password || password.length < 6) {
+      setError("A senha deve ter pelo menos 6 caracteres.")
+      setIsLoading(false)
+      return false
+    }
+
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      // Adicionar log para depuração (remover em produção)
+      console.log(`Tentando login com email: ${email.substring(0, 3)}...`)
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      console.log("Login bem-sucedido:", userCredential.user.uid)
       return true
     } catch (error: unknown) {
+      console.error("Erro de autenticação:", error)
+
       if (isAuthError(error)) {
-        setError(getAuthErrorMessage(error.code))
+        // Tratamento mais específico para erros comuns
+        if (
+          error.code === "auth/invalid-credential" ||
+          error.code === "auth/invalid-email" ||
+          error.code === "auth/user-not-found" ||
+          error.code === "auth/wrong-password"
+        ) {
+          setError("Email ou senha incorretos. Por favor, verifique suas credenciais.")
+        } else {
+          setError(getAuthErrorMessage(error.code))
+        }
       } else {
-        setError("Ocorreu um erro. Tente novamente.")
+        setError("Ocorreu um erro ao fazer login. Tente novamente.")
       }
       return false
     } finally {
@@ -41,10 +71,10 @@ export function useAuth() {
   }
 
   const signUp = async (
-    email: string, 
-    password: string, 
-    name: string, 
-    role: "user" | "parish" = "user"
+    email: string,
+    password: string,
+    name: string,
+    role: "user" | "parish" = "user",
   ): Promise<boolean> => {
     setIsLoading(true)
     setError(null)
@@ -138,6 +168,7 @@ export function useAuth() {
   }
 }
 
+// Atualizar a função getAuthErrorMessage para incluir mais códigos de erro
 function getAuthErrorMessage(errorCode: string): string {
   switch (errorCode) {
     case "auth/invalid-email":
@@ -154,8 +185,16 @@ function getAuthErrorMessage(errorCode: string): string {
       return "A senha é muito fraca."
     case "auth/popup-closed-by-user":
       return "Login cancelado."
+    case "auth/invalid-credential":
+      return "Credenciais inválidas. Verifique seu email e senha."
+    case "auth/too-many-requests":
+      return "Muitas tentativas de login. Tente novamente mais tarde."
+    case "auth/network-request-failed":
+      return "Erro de conexão. Verifique sua internet."
+    case "auth/internal-error":
+      return "Erro interno do servidor. Tente novamente mais tarde."
     default:
-      return "Ocorreu um erro. Tente novamente."
+      return `Ocorreu um erro (${errorCode}). Tente novamente.`
   }
 }
 
