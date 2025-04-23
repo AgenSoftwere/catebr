@@ -1,36 +1,36 @@
 "use client"
 
-import { useArticles } from "@/hooks/use-articles";
-import { ArticleCard } from "./article-card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from 'lucide-react';
-import type { ArticleType } from "@/types/article";
-import styles from "./article-list.module.css";
-import { useState } from "react";
+import { useArticles } from "@/hooks/use-articles"
+import { ArticleCard } from "./article-card"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Loader2 } from 'lucide-react'
+import type { ArticleType } from "@/types/article"
+import styles from "./article-list.module.css"
+import { useState } from "react"
 
 interface ArticleListProps {
-  initialType?: ArticleType;
-  tag?: string;
-  searchTerm?: string;
-  authorId?: string;
+  initialType?: ArticleType
+  tag?: string
+  searchTerm?: string
+  authorId?: string
 }
 
 export function ArticleList({ initialType, tag, searchTerm, authorId }: ArticleListProps) {
-  const [activeType, setActiveType] = useState<ArticleType | undefined>(initialType);
-  const [limit, setLimit] = useState(12);
-  
+  const [activeType, setActiveType] = useState<ArticleType | undefined>(initialType)
+  const [limit, setLimit] = useState(12)
+
   const { articles, loading, error } = useArticles({
     type: activeType,
     tag,
     searchTerm,
     authorId,
-    limit
-  });
+    limit,
+  })
 
   const handleLoadMore = () => {
-    setLimit(prev => prev + 12);
-  };
+    setLimit((prev) => prev + 12)
+  }
 
   if (error) {
     return (
@@ -38,22 +38,22 @@ export function ArticleList({ initialType, tag, searchTerm, authorId }: ArticleL
         <p>{error}</p>
         <Button onClick={() => window.location.reload()}>Tentar novamente</Button>
       </div>
-    );
+    )
   }
 
   return (
     <div className={styles.container}>
       {!tag && !searchTerm && !authorId && (
-        <Tabs 
-          defaultValue={activeType || "article"} 
+        <Tabs
+          defaultValue={activeType || "artigo"}
           className={styles.tabs}
           onValueChange={(value) => setActiveType(value as ArticleType)}
         >
           <TabsList className={styles.tabsList}>
-            <TabsTrigger value="article">Artigos</TabsTrigger>
-            <TabsTrigger value="news">Notícias</TabsTrigger>
-            <TabsTrigger value="reflection">Reflexões</TabsTrigger>
-            <TabsTrigger value="testimony">Depoimentos</TabsTrigger>
+            <TabsTrigger value="artigo">Artigos</TabsTrigger>
+            <TabsTrigger value="noticia">Notícias</TabsTrigger>
+            <TabsTrigger value="reflexao">Reflexões</TabsTrigger>
+            <TabsTrigger value="depoimento">Depoimentos</TabsTrigger>
           </TabsList>
         </Tabs>
       )}
@@ -70,8 +70,8 @@ export function ArticleList({ initialType, tag, searchTerm, authorId }: ArticleL
             {searchTerm
               ? `Não encontramos resultados para "${searchTerm}"`
               : tag
-              ? `Não há conteúdo com a tag "${tag}"`
-              : "Não há conteúdo disponível no momento"}
+                ? `Não há conteúdo com a tag "${tag}"`
+                : "Não há conteúdo disponível no momento"}
           </p>
         </div>
       ) : (
@@ -86,12 +86,7 @@ export function ArticleList({ initialType, tag, searchTerm, authorId }: ArticleL
 
           {articles.length >= limit && (
             <div className={styles.loadMore}>
-              <Button 
-                onClick={handleLoadMore} 
-                variant="outline" 
-                disabled={loading}
-                className={styles.loadMoreButton}
-              >
+              <Button onClick={handleLoadMore} variant="outline" disabled={loading} className={styles.loadMoreButton}>
                 {loading ? (
                   <>
                     <Loader2 className={styles.loadingIcon} />
@@ -106,5 +101,5 @@ export function ArticleList({ initialType, tag, searchTerm, authorId }: ArticleL
         </>
       )}
     </div>
-  );
+  )
 }

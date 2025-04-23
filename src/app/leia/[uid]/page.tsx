@@ -18,7 +18,8 @@ import { useAuth } from "@/hooks/use-auth"
 import styles from "./article.module.css"
 
 export default function ArticlePage() {
-  const { id } = useParams() as { id: string }
+  const params = useParams()
+  const id = params?.uid as string
   const router = useRouter()
   const { user } = useAuth()
   const [article, setArticle] = useState<Article | null>(null)
@@ -27,8 +28,10 @@ export default function ArticlePage() {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
+        console.log("Buscando artigo com ID:", id)
         setLoading(true)
         const fetchedArticle = await getArticleById(id)
+        console.log("Artigo encontrado:", fetchedArticle)
 
         // O getArticleById já carrega a imagem de capa automaticamente
         setArticle(fetchedArticle)
@@ -41,6 +44,8 @@ export default function ArticlePage() {
 
     if (id) {
       fetchArticle()
+    } else {
+      console.error("ID do artigo não encontrado nos parâmetros")
     }
   }, [id])
 
