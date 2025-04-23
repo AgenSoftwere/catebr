@@ -48,41 +48,30 @@ import styles from "./escreva.module.css"
 // Editor personalizado
 const CustomEditor = ({ value, onChange }: { value: string; onChange: (value: string) => void }) => {
   const editorRef = useRef<HTMLDivElement>(null)
+  const [localContent, setLocalContent] = useState(value)
 
   // Sincronizar o conteúdo do editor com o valor externo
   useEffect(() => {
-    if (editorRef.current && value !== editorRef.current.innerHTML) {
+    if (editorRef.current && value !== localContent) {
       editorRef.current.innerHTML = value
+      setLocalContent(value)
     }
-  }, [value])
+  }, [value, localContent])
 
   // Atualizar o valor quando o conteúdo do editor mudar
   const handleInput = () => {
     if (editorRef.current) {
-      // Salvar a posição atual do cursor
-      const selection = window.getSelection()
-      const range = selection?.getRangeAt(0)
-
-      // Atualizar o valor
-      onChange(editorRef.current.innerHTML)
-
-      // Garantir que o editor mantenha o foco
-      editorRef.current.focus()
-
-      // Restaurar a posição do cursor se possível
-      if (range && selection) {
-        selection.removeAllRanges()
-        selection.addRange(range)
-      }
+      const newContent = editorRef.current.innerHTML
+      setLocalContent(newContent)
+      onChange(newContent)
     }
   }
 
   // Funções de formatação
   const formatDoc = (command: string, value = "") => {
     document.execCommand(command, false, value)
-    handleInput()
     if (editorRef.current) {
-      editorRef.current.focus()
+      handleInput()
     }
   }
 
@@ -209,7 +198,7 @@ const CustomEditor = ({ value, onChange }: { value: string; onChange: (value: st
         className={styles.editorContent}
         contentEditable
         onInput={handleInput}
-        dangerouslySetInnerHTML={{ __html: value }}
+        suppressContentEditableWarning
       />
     </div>
   )

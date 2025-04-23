@@ -247,9 +247,12 @@
   line-height: 1.7;
   color: #334155;
   overflow-y: auto;
-  position: relative; /* Adicionado para garantir posicionamento correto */
-  z-index: 1; /* Adicionado para garantir que o conteúdo e o cursor fiquem acima */
-  caret-color: #3b82f6; /* Define uma cor específica para o cursor para melhorar a visibilidade */
+  position: relative;
+  z-index: 1;
+  caret-color: #3b82f6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: white;
 }
 
 .editorContent:focus {
