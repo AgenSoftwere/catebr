@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import type React from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
@@ -8,13 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,18 +21,199 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
-import { ArrowLeft, ImageIcon, X, Loader2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  ImageIcon,
+  X,
+  Loader2,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ListOrdered,
+  Heading1,
+  Heading2,
+  LinkIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+} from "lucide-react"
 import { createArticle, getArticleById, updateArticle } from "@/services/article-service"
-import { ArticleFormData, ArticleType } from "@/types/article"
+import type { ArticleFormData, ArticleType } from "@/types/article"
 import { firestore } from "@/lib/firebase"
 import { doc, getDoc } from "firebase/firestore"
 import Image from "next/image"
-import dynamic from "next/dynamic"
 import styles from "./escreva.module.css"
 
-// Importar o editor de texto de forma dinâmica para evitar problemas de SSR
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
-import "react-quill/dist/quill.snow.css"
+// Editor personalizado
+const CustomEditor = ({ value, onChange }: { value: string; onChange: (value: string) => void }) => {
+  const editorRef = useRef<HTMLDivElement>(null)
+
+  // Sincronizar o conteúdo do editor com o valor externo
+  useEffect(() => {
+    if (editorRef.current && value !== editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = value
+    }
+  }, [value])
+
+  // Atualizar o valor quando o conteúdo do editor mudar
+  const handleInput = () => {
+    if (editorRef.current) {
+      // Salvar a posição atual do cursor
+      const selection = window.getSelection()
+      const range = selection?.getRangeAt(0)
+
+      // Atualizar o valor
+      onChange(editorRef.current.innerHTML)
+
+      // Garantir que o editor mantenha o foco
+      editorRef.current.focus()
+
+      // Restaurar a posição do cursor se possível
+      if (range && selection) {
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+    }
+  }
+
+  // Funções de formatação
+  const formatDoc = (command: string, value = "") => {
+    document.execCommand(command, false, value)
+    handleInput()
+    if (editorRef.current) {
+      editorRef.current.focus()
+    }
+  }
+
+  // Inserir link
+  const insertLink = () => {
+    const url = prompt("Insira a URL do link:")
+    if (url) {
+      formatDoc("createLink", url)
+    }
+  }
+
+  return (
+    <div className={styles.customEditor}>
+      <div className={styles.toolbar}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("bold")}
+          className={styles.toolbarButton}
+        >
+          <Bold size={18} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("italic")}
+          className={styles.toolbarButton}
+        >
+          <Italic size={18} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("underline")}
+          className={styles.toolbarButton}
+        >
+          <Underline size={18} />
+        </Button>
+
+        <div className={styles.divider}></div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("formatBlock", "<h1>")}
+          className={styles.toolbarButton}
+        >
+          <Heading1 size={18} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("formatBlock", "<h2>")}
+          className={styles.toolbarButton}
+        >
+          <Heading2 size={18} />
+        </Button>
+
+        <div className={styles.divider}></div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("insertUnorderedList")}
+          className={styles.toolbarButton}
+        >
+          <List size={18} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("insertOrderedList")}
+          className={styles.toolbarButton}
+        >
+          <ListOrdered size={18} />
+        </Button>
+
+        <div className={styles.divider}></div>
+
+        <Button type="button" variant="ghost" size="icon" onClick={insertLink} className={styles.toolbarButton}>
+          <LinkIcon size={18} />
+        </Button>
+
+        <div className={styles.divider}></div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("justifyLeft")}
+          className={styles.toolbarButton}
+        >
+          <AlignLeft size={18} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("justifyCenter")}
+          className={styles.toolbarButton}
+        >
+          <AlignCenter size={18} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => formatDoc("justifyRight")}
+          className={styles.toolbarButton}
+        >
+          <AlignRight size={18} />
+        </Button>
+      </div>
+
+      <div
+        ref={editorRef}
+        className={styles.editorContent}
+        contentEditable
+        onInput={handleInput}
+        dangerouslySetInnerHTML={{ __html: value }}
+      />
+    </div>
+  )
+}
 
 export default function EscrevaPage() {
   const router = useRouter()
@@ -63,60 +239,63 @@ export default function EscrevaPage() {
   // Verificar se o usuário é escritor
   const isWriter = user?.contributions && Array.isArray(user.contributions) && user.contributions.includes("escritor")
 
+  // Buscar artigo para edição
+  const fetchArticleForEdit = useCallback(
+    async (id: string) => {
+      try {
+        setIsLoading(true)
+        const article = await getArticleById(id)
+
+        if (article) {
+          // Verificar se o usuário atual é o autor
+          if (user && article.authorId !== user.uid) {
+            toast.error("Você não tem permissão para editar este artigo")
+            router.push("/leia")
+            return
+          }
+
+          // Carregar imagem de capa do Firestore se necessário
+          let coverImage = article.coverImage
+          if (coverImage && coverImage.startsWith("firestore:")) {
+            const imageId = coverImage.replace("firestore:", "")
+            const imageDoc = await getDoc(doc(firestore, "images", imageId))
+
+            if (imageDoc.exists()) {
+              coverImage = imageDoc.data().data
+            }
+          }
+
+          setFormData({
+            title: article.title,
+            subtitle: article.subtitle,
+            content: article.content,
+            type: article.type,
+            coverImage: coverImage || null,
+            tags: article.tags || [],
+          })
+        } else {
+          toast.error("Artigo não encontrado")
+          router.push("/leia")
+        }
+      } catch (error) {
+        console.error("Erro ao buscar artigo para edição:", error)
+        toast.error("Erro ao carregar artigo para edição")
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [user, router],
+  )
+
   // Verificar se estamos em modo de edição
   useEffect(() => {
-    const editId = searchParams.get("edit")
+    const editId = searchParams?.get("edit")
     if (editId) {
       setEditMode(true)
       setArticleId(editId)
       fetchArticleForEdit(editId)
     }
-  }, [searchParams])
-
-  // Buscar artigo para edição
-  const fetchArticleForEdit = async (id: string) => {
-    try {
-      setIsLoading(true)
-      const article = await getArticleById(id)
-      
-      if (article) {
-        // Verificar se o usuário atual é o autor
-        if (user && article.authorId !== user.uid) {
-          toast.error("Você não tem permissão para editar este artigo")
-          router.push("/leia")
-          return
-        }
-        
-        // Carregar imagem de capa do Firestore se necessário
-        let coverImage = article.coverImage
-        if (coverImage && coverImage.startsWith("firestore:")) {
-          const imageId = coverImage.replace("firestore:", "")
-          const imageDoc = await getDoc(doc(firestore, "images", imageId))
-          
-          if (imageDoc.exists()) {
-            coverImage = imageDoc.data().data
-          }
-        }
-        
-        setFormData({
-          title: article.title,
-          subtitle: article.subtitle,
-          content: article.content,
-          type: article.type,
-          coverImage: coverImage || null,
-          tags: article.tags || [],
-        })
-      } else {
-        toast.error("Artigo não encontrado")
-        router.push("/leia")
-      }
-    } catch (error) {
-      console.error("Erro ao buscar artigo para edição:", error)
-      toast.error("Erro ao carregar artigo para edição")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  }, [searchParams, fetchArticleForEdit])
 
   // Redirecionar se não for escritor
   useEffect(() => {
@@ -124,7 +303,7 @@ export default function EscrevaPage() {
       toast.error("Você precisa ser um escritor para acessar esta página")
       router.push("/contribuicoes")
     }
-    
+
     if (!authLoading && !user) {
       toast.error("Você precisa estar logado para acessar esta página")
       router.push("/auth/o/login")
@@ -134,15 +313,15 @@ export default function EscrevaPage() {
   // Manipuladores de formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleEditorChange = (content: string) => {
-    setFormData(prev => ({ ...prev, content }))
+    setFormData((prev) => ({ ...prev, content }))
   }
 
   const handleTypeChange = (value: string) => {
-    setFormData(prev => ({ ...prev, type: value as ArticleType }))
+    setFormData((prev) => ({ ...prev, type: value as ArticleType }))
   }
 
   const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,7 +337,7 @@ export default function EscrevaPage() {
     const reader = new FileReader()
     reader.onloadend = () => {
       const base64String = reader.result as string
-      setFormData(prev => ({ ...prev, coverImage: base64String }))
+      setFormData((prev) => ({ ...prev, coverImage: base64String }))
     }
     reader.onerror = () => {
       toast.error("Erro ao processar a imagem")
@@ -167,35 +346,35 @@ export default function EscrevaPage() {
   }
 
   const removeCoverImage = () => {
-    setFormData(prev => ({ ...prev, coverImage: null }))
+    setFormData((prev) => ({ ...prev, coverImage: null }))
   }
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && tagInput.trim()) {
       e.preventDefault()
-      
+
       if (formData.tags.includes(tagInput.trim())) {
         toast.error("Esta tag já foi adicionada")
         return
       }
-      
+
       if (formData.tags.length >= 5) {
         toast.error("Máximo de 5 tags permitidas")
         return
       }
-      
-      setFormData(prev => ({
+
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, tagInput.trim()]
+        tags: [...prev.tags, tagInput.trim()],
       }))
       setTagInput("")
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }))
   }
 
@@ -205,22 +384,22 @@ export default function EscrevaPage() {
       toast.error("O título é obrigatório")
       return false
     }
-    
+
     if (!formData.subtitle.trim()) {
       toast.error("O subtítulo é obrigatório")
       return false
     }
-    
-    if (!formData.content.trim() || formData.content === "<p><br></p>") {
+
+    if (!formData.content.trim() || formData.content === "<p><br></p>" || formData.content === "<br>") {
       toast.error("O conteúdo é obrigatório")
       return false
     }
-    
+
     if (formData.tags.length === 0) {
       toast.error("Adicione pelo menos uma tag")
       return false
     }
-    
+
     return true
   }
 
@@ -230,31 +409,28 @@ export default function EscrevaPage() {
       toast.error("Você precisa estar logado para publicar")
       return
     }
-    
+
     if (!validateForm()) {
       return
     }
-    
+
     try {
       setIsPublishing(true)
-      
+
       if (editMode && articleId) {
         // Atualizar artigo existente
         await updateArticle(articleId, formData)
         toast.success("Artigo atualizado com sucesso!")
       } else {
         // Criar novo artigo
-        await createArticle(
-          user.uid,
-          {
-            ...formData,
-            authorName: user.displayName || "Autor",
-            authorImage: typeof user.profileImage === "string" ? user.profileImage : undefined
-          }
-        )
+        await createArticle(user.uid, {
+          ...formData,
+          authorName: user.displayName || "Autor",
+          authorImage: typeof user.profileImage === "string" ? user.profileImage : undefined,
+        })
         toast.success("Artigo publicado com sucesso!")
       }
-      
+
       router.push("/leia")
     } catch (error) {
       console.error("Erro ao publicar artigo:", error)
@@ -264,36 +440,12 @@ export default function EscrevaPage() {
     }
   }
 
-  // Configurações do editor
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['blockquote', 'code-block'],
-      ['link', 'image'],
-      [{ 'align': [] }],
-      [{ 'color': [] }, { 'background': [] }],
-      ['clean']
-    ]
-  }
-
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'blockquote', 'code-block',
-    'link', 'image',
-    'align',
-    'color', 'background'
-  ]
-
   // Manipular saída
   const handleExit = () => {
     if (
       formData.title.trim() ||
       formData.subtitle.trim() ||
-      (formData.content && formData.content !== "<p><br></p>") ||
+      (formData.content && formData.content !== "<p><br></p>" && formData.content !== "<br>") ||
       formData.coverImage ||
       formData.tags.length > 0
     ) {
@@ -323,11 +475,11 @@ export default function EscrevaPage() {
           <ArrowLeft className={styles.backIcon} />
           <span>Voltar</span>
         </Button>
-        
+
         <div className={styles.actions}>
-          <Button 
-            variant="outline" 
-            className={styles.saveButton} 
+          <Button
+            variant="outline"
+            className={styles.saveButton}
             disabled={isSaving || isPublishing}
             onClick={() => toast.info("Recurso de rascunho em desenvolvimento")}
           >
@@ -340,12 +492,8 @@ export default function EscrevaPage() {
               <span>Salvar rascunho</span>
             )}
           </Button>
-          
-          <Button 
-            className={styles.publishButton} 
-            disabled={isSaving || isPublishing}
-            onClick={handlePublish}
-          >
+
+          <Button className={styles.publishButton} disabled={isSaving || isPublishing} onClick={handlePublish}>
             {isPublishing ? (
               <>
                 <Loader2 className={`${styles.actionIcon} ${styles.spinner}`} />
@@ -357,10 +505,12 @@ export default function EscrevaPage() {
           </Button>
         </div>
       </div>
-      
+
       <div className={styles.content}>
         <div className={styles.formGroup}>
-          <Label htmlFor="type" className={styles.label}>Tipo de conteúdo</Label>
+          <Label htmlFor="type" className={styles.label}>
+            Tipo de conteúdo
+          </Label>
           <Select value={formData.type} onValueChange={handleTypeChange}>
             <SelectTrigger className={styles.select}>
               <SelectValue placeholder="Selecione o tipo" />
@@ -373,9 +523,11 @@ export default function EscrevaPage() {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className={styles.formGroup}>
-          <Label htmlFor="title" className={styles.label}>Título</Label>
+          <Label htmlFor="title" className={styles.label}>
+            Título
+          </Label>
           <Input
             id="title"
             name="title"
@@ -385,9 +537,11 @@ export default function EscrevaPage() {
             className={styles.input}
           />
         </div>
-        
+
         <div className={styles.formGroup}>
-          <Label htmlFor="subtitle" className={styles.label}>Subtítulo</Label>
+          <Label htmlFor="subtitle" className={styles.label}>
+            Subtítulo
+          </Label>
           <Textarea
             id="subtitle"
             name="subtitle"
@@ -398,9 +552,11 @@ export default function EscrevaPage() {
             rows={2}
           />
         </div>
-        
+
         <div className={styles.formGroup}>
-          <Label htmlFor="coverImage" className={styles.label}>Imagem de capa (opcional)</Label>
+          <Label htmlFor="coverImage" className={styles.label}>
+            Imagem de capa (opcional)
+          </Label>
           {formData.coverImage ? (
             <div className={styles.coverPreviewContainer}>
               <Image
@@ -410,12 +566,7 @@ export default function EscrevaPage() {
                 height={400}
                 className={styles.coverPreview}
               />
-              <Button
-                variant="destructive"
-                size="icon"
-                className={styles.removeCoverButton}
-                onClick={removeCoverImage}
-              >
+              <Button variant="destructive" size="icon" className={styles.removeCoverButton} onClick={removeCoverImage}>
                 <X className={styles.removeCoverIcon} />
               </Button>
             </div>
@@ -436,22 +587,14 @@ export default function EscrevaPage() {
             </div>
           )}
         </div>
-        
+
         <div className={styles.formGroup}>
-          <Label htmlFor="content" className={styles.label}>Conteúdo</Label>
-          <div className={styles.editorContainer}>
-            <ReactQuill
-              theme="snow"
-              value={formData.content}
-              onChange={handleEditorChange}
-              modules={modules}
-              formats={formats}
-              placeholder="Escreva seu conteúdo aqui..."
-              className={styles.editor}
-            />
-          </div>
+          <Label htmlFor="content" className={styles.label}>
+            Conteúdo
+          </Label>
+          <CustomEditor value={formData.content} onChange={handleEditorChange} />
         </div>
-        
+
         <div className={styles.formGroup}>
           <Label htmlFor="tags" className={styles.label}>
             Tags (máx. 5) - Pressione Enter para adicionar
@@ -466,9 +609,9 @@ export default function EscrevaPage() {
             className={styles.input}
             disabled={formData.tags.length >= 5}
           />
-          
+
           <div className={styles.tagsContainer}>
-            {formData.tags.map(tag => (
+            {formData.tags.map((tag) => (
               <Badge key={tag} className={styles.tag}>
                 {tag}
                 <X className={styles.removeTagIcon} onClick={() => removeTag(tag)} />
@@ -477,7 +620,7 @@ export default function EscrevaPage() {
           </div>
         </div>
       </div>
-      
+
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -488,9 +631,7 @@ export default function EscrevaPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => router.push("/leia")}>
-              Sair sem salvar
-            </AlertDialogAction>
+            <AlertDialogAction onClick={() => router.push("/leia")}>Sair sem salvar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

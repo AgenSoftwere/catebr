@@ -6,19 +6,17 @@
   background-color: #f8fafc;
 }
 
-.content {
-  flex: 1;
-  padding: 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
-  width: 100%;
-}
-
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin-bottom: 2rem; /* Removed from original and added padding, background, border, position, and z-index */
 }
 
 .backButton {
@@ -37,6 +35,28 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.saveButton,
+.publishButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .editButton {
@@ -144,6 +164,141 @@
 }
 
 .content {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Editor personalizado */
+.customEditor {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: white;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.toolbarButton {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: #64748b;
+}
+
+.toolbarButton:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.divider {
+  width: 1px;
+  height: 1.5rem;
+  background-color: #e2e8f0;
+  margin: 0 0.25rem;
+}
+
+.editorContent {
+  min-height: 350px;
+  padding: 1rem;
+  outline: none;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #334155;
+  overflow-y: auto;
+  position: relative; /* Adicionado para garantir posicionamento correto */
+  z-index: 1; /* Adicionado para garantir que o conteúdo e o cursor fiquem acima */
+  caret-color: #3b82f6; /* Define uma cor específica para o cursor para melhorar a visibilidade */
+}
+
+.editorContent:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) inset;
+}
+
+/* Estilos para o conteúdo do editor */
+.editorContent h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 1.5rem 0 1rem;
+  color: #1e293b;
+}
+
+.editorContent h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.75rem;
+  color: #1e293b;
+}
+
+.editorContent p {
+  margin-bottom: 1rem;
+}
+
+.editorContent ul,
+.editorContent ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.editorContent li {
+  margin-bottom: 0.5rem;
+}
+
+.editorContent a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.editorContent blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #64748b;
+  margin: 1.5rem 0;
+}
+
+.content {
   font-size: 1.125rem;
   line-height: 1.8;
   color: #334155;
@@ -188,7 +343,8 @@
   margin: 1.5rem 0;
 }
 
-.content ul, .content ol {
+.content ul,
+.content ol {
   margin: 1.5rem 0;
   padding-left: 1.5rem;
 }
@@ -221,6 +377,125 @@
 .shareText {
   font-size: 0.875rem;
   color: #64748b;
+}
+
+/* Imagem de capa */
+.coverUploadContainer {
+  border: 2px dashed #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
+}
+
+.coverUploadContainer:hover {
+  border-color: #3b82f6;
+  background-color: #f0f9ff;
+}
+
+.coverUploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.coverUploadIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #94a3b8;
+}
+
+.coverUploadHelp {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+}
+
+.coverUploadInput {
+  display: none;
+}
+
+.coverPreviewContainer {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.coverPreview {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.removeCoverButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.removeCoverButton:hover {
+  background-color: rgba(239, 68, 68, 0.9);
+}
+
+.removeCoverIcon {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+/* Tags */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  background-color: #f0f9ff;
+  color: #3b82f6;
+  border-color: #bae6fd;
+}
+
+.removeTagIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  cursor: pointer;
+  margin-left: 0.25rem;
+}
+
+/* Loading */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #64748b;
+  gap: 1rem;
+}
+
+.loadingSpinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  animation: spin 1s linear infinite;
 }
 
 /* Skeletons */
@@ -310,24 +585,48 @@
   margin-bottom: 2rem;
 }
 
+/* Responsividade */
 @media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .title {
     font-size: 1.75rem;
   }
-  
+
   .subtitle {
     font-size: 1.125rem;
   }
-  
+
   .article {
     padding: 1.5rem;
   }
-  
+
   .coverContainer {
     margin: 0 -1.5rem 1.5rem;
   }
-  
+
   .content {
+    padding: 1rem;
     font-size: 1rem;
+  }
+
+  .toolbar {
+    overflow-x: auto;
+    padding: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .editorContent {
+    min-height: 250px;
   }
 }
