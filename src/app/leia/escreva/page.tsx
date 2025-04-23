@@ -204,6 +204,53 @@ const CustomEditor = ({ value, onChange }: { value: string; onChange: (value: st
   )
 }
 
+// Adicionar função para comprimir imagens
+const compressImage = async (base64Image: string): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new window.Image()
+    img.onload = () => {
+      const canvas = document.createElement("canvas")
+
+      // Calcular as novas dimensões mantendo a proporção
+      let width = img.width
+      let height = img.height
+
+      // Se a imagem for muito grande, redimensionar
+      const MAX_WIDTH = 1200
+      const MAX_HEIGHT = 800
+
+      if (width > MAX_WIDTH) {
+        height = Math.round(height * (MAX_WIDTH / width))
+        width = MAX_WIDTH
+      }
+
+      if (height > MAX_HEIGHT) {
+        width = Math.round(width * (MAX_HEIGHT / height))
+        height = MAX_HEIGHT
+      }
+
+      canvas.width = width
+      canvas.height = height
+
+      // Desenhar a imagem redimensionada
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Converter para JPEG com qualidade reduzida
+        const compressedImage = canvas.toDataURL("image/jpeg", 0.7)
+        resolve(compressedImage)
+      } else {
+        // Se não conseguir comprimir, retornar a original
+        resolve(base64Image)
+      }
+    }
+
+    img.crossOrigin = "anonymous"
+    img.src = base64Image
+  })
+}
+
 export default function EscrevaPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -392,7 +439,7 @@ export default function EscrevaPage() {
     return true
   }
 
-  // Publicar artigo
+  // Modificar a função handlePublish para lidar com imagens grandes
   const handlePublish = async () => {
     if (!user) {
       toast.error("Você precisa estar logado para publicar")
@@ -405,6 +452,13 @@ export default function EscrevaPage() {
 
     try {
       setIsPublishing(true)
+
+      // Verificar se a imagem de capa é muito grande (mais de 900KB)
+      if (formData.coverImage && formData.coverImage.length > 900000) {
+        // Comprimir a imagem antes de enviar
+        const compressedImage = await compressImage(formData.coverImage)
+        formData.coverImage = compressedImage
+      }
 
       if (editMode && articleId) {
         // Atualizar artigo existente

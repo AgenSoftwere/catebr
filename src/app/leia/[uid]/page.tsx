@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArticleShare } from "@/components/articles/article-share"
 import { getArticleById } from "@/services/article-service"
-import { Article } from "@/types/article"
+import type { Article } from "@/types/article"
 import { formatDate } from "@/lib/utils"
-import { ArrowLeft, Clock, Calendar, Edit } from 'lucide-react'
+import { ArrowLeft, Clock, Calendar, Edit } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useAuth } from "@/hooks/use-auth"
@@ -29,6 +29,8 @@ export default function ArticlePage() {
       try {
         setLoading(true)
         const fetchedArticle = await getArticleById(id)
+
+        // O getArticleById já carrega a imagem de capa automaticamente
         setArticle(fetchedArticle)
       } catch (error) {
         console.error("Erro ao buscar artigo:", error)
@@ -49,7 +51,7 @@ export default function ArticlePage() {
   const getInitials = (name: string) => {
     return name
       .split(" ")
-      .map(part => part[0])
+      .map((part) => part[0])
       .join("")
       .toUpperCase()
       .substring(0, 2)
@@ -81,11 +83,11 @@ export default function ArticlePage() {
               <span>Voltar</span>
             </Button>
           </div>
-          
+
           <div className={styles.articleSkeleton}>
             <Skeleton className={styles.titleSkeleton} />
             <Skeleton className={styles.subtitleSkeleton} />
-            
+
             <div className={styles.metaSkeleton}>
               <div className={styles.authorSkeleton}>
                 <Skeleton className={styles.avatarSkeleton} />
@@ -96,9 +98,9 @@ export default function ArticlePage() {
                 <Skeleton className={styles.dateItemSkeleton} />
               </div>
             </div>
-            
+
             <Skeleton className={styles.coverSkeleton} />
-            
+
             <div className={styles.contentSkeleton}>
               <Skeleton className={styles.paragraphSkeleton} />
               <Skeleton className={styles.paragraphSkeleton} />
@@ -123,7 +125,7 @@ export default function ArticlePage() {
               <span>Voltar</span>
             </Button>
           </div>
-          
+
           <div className={styles.notFound}>
             <h1 className={styles.notFoundTitle}>Artigo não encontrado</h1>
             <p className={styles.notFoundText}>O artigo que você está procurando não existe ou foi removido.</p>
@@ -145,7 +147,7 @@ export default function ArticlePage() {
             <ArrowLeft className={styles.backIcon} />
             <span>Voltar</span>
           </Button>
-          
+
           <div className={styles.actions}>
             {isAuthor && (
               <Link href={`/leia/escreva?edit=${article.id}`}>
@@ -155,17 +157,17 @@ export default function ArticlePage() {
                 </Button>
               </Link>
             )}
-            
+
             <ArticleShare title={article.title} url={shareUrl} />
           </div>
         </div>
-        
+
         <article className={styles.article}>
           <Badge className={styles.typeTag}>{getTypeName(article.type)}</Badge>
-          
+
           <h1 className={styles.title}>{article.title}</h1>
           <h2 className={styles.subtitle}>{article.subtitle}</h2>
-          
+
           <div className={styles.meta}>
             <div className={styles.author}>
               <Avatar className={styles.avatar}>
@@ -187,7 +189,7 @@ export default function ArticlePage() {
               </div>
             </div>
           </div>
-          
+
           {article.coverImage && (
             <div className={styles.coverContainer}>
               <Image
@@ -199,17 +201,18 @@ export default function ArticlePage() {
               />
             </div>
           )}
-          
+
           <div className={styles.content} dangerouslySetInnerHTML={{ __html: article.content }} />
-          
+
           <div className={styles.tags}>
-            {article.tags && article.tags.map(tag => (
-              <Badge key={tag} variant="outline" className={styles.tag}>
-                {tag}
-              </Badge>
-            ))}
+            {article.tags &&
+              article.tags.map((tag) => (
+                <Badge key={tag} variant="outline" className={styles.tag}>
+                  {tag}
+                </Badge>
+              ))}
           </div>
-          
+
           <div className={styles.shareFooter}>
             <span className={styles.shareText}>Compartilhar:</span>
             <ArticleShare title={article.title} url={shareUrl} />
