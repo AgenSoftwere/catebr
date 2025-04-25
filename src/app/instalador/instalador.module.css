@@ -1,0 +1,575 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8fafc;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: white;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .backLink {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-right: 1rem;
+  }
+  
+  .backIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    flex: 1;
+    text-align: center;
+    margin-right: 2rem;
+  }
+  
+  .content {
+    flex: 1;
+    padding: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  /* App Preview Section */
+  .appPreview {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .appIconContainer {
+    margin-right: 1.5rem;
+  }
+  
+  .appIcon {
+    width: 80px;
+    height: 80px;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .appInfo {
+    flex: 1;
+  }
+  
+  .appName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+  
+  .appDescription {
+    font-size: 0.9375rem;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+  }
+  
+  .appMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .versionBadge {
+    font-size: 0.75rem;
+    background-color: #f8fafc;
+    color: #64748b;
+  }
+  
+  .compatibleBadge {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: #dcfce7;
+    color: #16a34a;
+    border-color: #bbf7d0;
+  }
+  
+  .incompatibleBadge {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: #fee2e2;
+    color: #ef4444;
+    border-color: #fecaca;
+  }
+  
+  .badgeIcon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Device Info Section */
+  .deviceInfo {
+    margin-bottom: 1.5rem;
+  }
+  
+  .deviceCard {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .deviceIconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background-color: #f0f9ff;
+    border-radius: 0.75rem;
+    margin-right: 1rem;
+  }
+  
+  .deviceIcon {
+    width: 24px;
+    height: 24px;
+    color: #3b82f6;
+  }
+  
+  .deviceDetails {
+    flex: 1;
+  }
+  
+  .deviceType {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+  
+  .deviceName {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .compatibilityMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  
+  .infoIcon {
+    width: 14px;
+    height: 14px;
+    color: #3b82f6;
+  }
+  
+  /* Install Section */
+  .installSection {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .installButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 2rem;
+    height: 3rem;
+    font-size: 1rem;
+    background-color: #3b82f6;
+    transition: all 0.2s ease;
+  }
+  
+  .installButton:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .buttonIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .installedMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    color: #16a34a;
+  }
+  
+  .installedIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: #16a34a;
+  }
+  
+  .manualInstallContainer {
+    text-align: center;
+    padding: 0 1rem;
+  }
+  
+  .manualInstallText {
+    font-size: 0.9375rem;
+    color: #64748b;
+  }
+  
+  /* Tabs Section */
+  .tabs {
+    margin-bottom: 1.5rem;
+  }
+  
+  .tabsList {
+    background-color: #f8fafc;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+  }
+  
+  .tabsTrigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .tabIcon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .tabsContent {
+    margin-top: 1.5rem;
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Platform List */
+  .platformList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .platformItem {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  
+  .platformHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    background-color: #f8fafc;
+    transition: background-color 0.2s ease;
+  }
+  
+  .platformHeader:hover {
+    background-color: #f1f5f9;
+  }
+  
+  .platformInfo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .platformIconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border-radius: 50%;
+    margin-right: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .platformIcon {
+    width: 24px;
+    height: 24px;
+    color: #3b82f6;
+  }
+  
+  .platformDetails {
+    flex: 1;
+  }
+  
+  .platformName {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+  
+  .platformSupport {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  
+  .chevronIcon {
+    width: 18px;
+    height: 18px;
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+  }
+  
+  .chevronOpen {
+    transform: rotate(180deg);
+  }
+  
+  .instructionsContainer {
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    background-color: white;
+  }
+  
+  .instructionStep {
+    display: flex;
+    margin-bottom: 1rem;
+  }
+  
+  .stepNumber {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .stepContent {
+    flex: 1;
+  }
+  
+  .stepText {
+    font-size: 0.9375rem;
+    color: #475569;
+    line-height: 1.5;
+  }
+  
+  .stepIcon {
+    width: 16px;
+    height: 16px;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+  
+  .instructionImages {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: center;
+  }
+  
+  .instructionImage {
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    object-fit: contain;
+  }
+  
+  /* Requirements Section */
+  .requirementsSection {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .requirementsTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+  }
+  
+  .requirementsIcon {
+    width: 18px;
+    height: 18px;
+    color: #3b82f6;
+  }
+  
+  .requirementsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .requirementItem {
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+  }
+  
+  .requirementName {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .requirementDetails {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  
+  /* Benefits Section */
+  .benefitsSection {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .benefitsTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+  }
+  
+  .benefitsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .benefitItem {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .benefitIconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background-color: #f0f9ff;
+    border-radius: 0.75rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .benefitIcon {
+    width: 24px;
+    height: 24px;
+    color: #3b82f6;
+  }
+  
+  .benefitContent {
+    flex: 1;
+  }
+  
+  .benefitName {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .benefitDescription {
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .appPreview {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .appIconContainer {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
+  
+    .appMeta {
+      justify-content: center;
+    }
+  
+    .benefitsList {
+      grid-template-columns: 1fr;
+    }
+  
+    .requirementsList {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .content {
+      padding: 1rem;
+    }
+  
+    .header {
+      padding: 1rem;
+    }
+  
+    .title {
+      font-size: 1.125rem;
+    }
+  
+    .appIcon {
+      width: 64px;
+      height: 64px;
+    }
+  
+    .appName {
+      font-size: 1.25rem;
+    }
+  
+    .instructionImages {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  
