@@ -49,7 +49,7 @@ async function getParishUserId(parishId: string): Promise<string | null> {
 
       // Verificar se existe algum nó com notificações para esta paróquia
       for (const notificationUserId in notifications) {
-        // Verificar se este usuário está associado à paróquia
+        // Verificar se este usuário est associado à paróquia
         const userRef = ref(database, `users/${notificationUserId}`)
         const userSnapshot = await get(userRef)
 
@@ -74,7 +74,7 @@ async function getParishUserId(parishId: string): Promise<string | null> {
   }
 }
 
-// Função para buscar notificações para um usuário
+// Optimize the getNotificationsForUser function to reduce redundant Firestore calls
 export async function getNotificationsForUser(userId: string, parishId: string): Promise<Notification[]> {
   try {
     console.log(`Buscando notificações para usuário ${userId} na paróquia ${parishId}`)
@@ -84,8 +84,19 @@ export async function getNotificationsForUser(userId: string, parishId: string):
       return []
     }
 
-    // Obter o ID do usuário da paróquia
-    const parishUserId = await getParishUserId(parishId)
+    // Cache the parish user ID to avoid redundant lookups
+    const parishUserIdCache = new Map<string, string | null>()
+
+    // Check if we have the parish user ID in cache
+    let parishUserId: string | null
+    if (parishUserIdCache.has(parishId)) {
+      parishUserId = parishUserIdCache.get(parishId)!
+    } else {
+      // Obter o ID do usuário da paróquia
+      parishUserId = await getParishUserId(parishId)
+      // Cache the result
+      parishUserIdCache.set(parishId, parishUserId)
+    }
 
     if (!parishUserId) {
       console.error("Não foi possível determinar o ID do usuário da paróquia")
@@ -108,19 +119,26 @@ export async function getNotificationsForUser(userId: string, parishId: string):
     const notifications = notificationsSnapshot.val()
     const notificationList: Notification[] = []
 
-    for (const key in notifications) {
-      const notification = notifications[key]
-      console.log(`Processando notificação ${key}:`, notification)
+    // Batch read operations for user read status
+    const readStatusPromises: Promise<import("firebase/database").DataSnapshot>[] = []
+    const notificationKeys: string[] = []
 
-      // Check if user has read this notification
-      let isRead = false
-      try {
-        const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
-        const userReadSnapshot = await get(userReadRef)
-        isRead = userReadSnapshot.exists()
-      } catch (error) {
-        console.error("Erro ao verificar status de leitura:", error)
-      }
+    for (const key in tifications) {
+      notificationKeys.push(key)
+      const userReadRef = ref(database, `userReadNotifications/${userId}/${key}`)
+      readStatusPromises.push(get(userReadRef))
+    }
+
+    // Execute all read status checks in parallel
+    const readStatusResults = await Promise.all(readStatusPromises)
+
+    // Now process notifications with the read status results
+    for (let i = 0; i < notificationKeys.length; i++) {
+      const key = notificationKeys[i]
+      const notification = notifications[key]
+      const isRead = readStatusResults[i].exists()
+
+      console.log(`Processando notificação ${key}:`, notification)
 
       notificationList.push({
         id: key,
@@ -306,192 +324,4 @@ export async function deleteNotification(parishId: string, notificationId: strin
     console.error("Error deleting notification:", error)
     throw error
   }
-}
-
-// Novas funções para gerenciar preferências de notificações
-
-// Interface para preferências de notificação
-export interface NotificationPreferences {
-  pushEnabled: boolean
-  emailEnabled: boolean
-  notificationTypes: {
-    announcements: boolean
-    events: boolean
-    alerts: boolean
-    updates: boolean
-  }
-  notificationFrequency: "immediate" | "daily" | "weekly"
-}
-
-// Função para obter preferências de notificação do usuário
-export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
-  try {
-    const preferencesRef = ref(database, `userPreferences/${userId}/notifications`)
-    const snapshot = await get(preferencesRef)
-
-    if (snapshot.exists()) {
-      return snapshot.val() as NotificationPreferences
-    }
-
-    // Retornar preferências padrão se não existirem
-    return {
-      pushEnabled: false,
-      emailEnabled: true,
-      notificationTypes: {
-        announcements: true,
-        events: true,
-        alerts: true,
-        updates: false,
-      },
-      notificationFrequency: "immediate",
-    }
-  } catch (error) {
-    console.error("Erro ao obter preferências de notificação:", error)
-    return null
-  }
-}
-
-// Função para salvar preferências de notificação do usuário
-export async function saveNotificationPreferences(userId: string, preferences: NotificationPreferences): Promise<boolean> {
-  try {
-    const preferencesRef = ref(database, `userPreferences/${userId}/notifications`)
-    await set(preferencesRef, preferences)
-    return true
-  } catch (error) {
-    console.error("Erro ao salvar preferências de notificação:", error)
-    throw error
-  }
-}
-
-// Funções para gerenciar inscrições de notificações push
-
-// Verificar se o navegador suporta notificações push
-export async function isPushNotificationSupported(): Promise<boolean> {
-  if (typeof window === 'undefined') return false
-  
-  return 'serviceWorker' in navigator && 
-         'PushManager' in window && 
-         'Notification' in window
-}
-
-// Verificar se o usuário já está inscrito em notificações push
-export async function isPushNotificationSubscribed(): Promise<boolean> {
-  if (typeof window === 'undefined') return false
-  
-  try {
-    if (!('serviceWorker' in navigator)) return false
-    
-    const registration = await navigator.serviceWorker.ready
-    const subscription = await registration.pushManager.getSubscription()
-    
-    return !!subscription
-  } catch (error) {
-    console.error("Erro ao verificar inscrição de notificações push:", error)
-    return false
-  }
-}
-
-// Inscrever usuário em notificações push
-export async function subscribeToPushNotifications(userId: string): Promise<boolean> {
-  if (typeof window === 'undefined') return false
-  
-  try {
-    // Verificar permissão de notificação
-    if (Notification.permission !== 'granted') {
-      const permission = await Notification.requestPermission()
-      if (permission !== 'granted') {
-        console.log("Permissão de notificação negada")
-        return false
-      }
-    }
-    
-    // Obter registro do service worker
-    const registration = await navigator.serviceWorker.ready
-    
-    // Obter chave pública VAPID do servidor
-    const response = await fetch('/api/notifications/subscribe')
-    const { publicKey } = await response.json()
-    
-    if (!publicKey) {
-      console.error("Chave pública VAPID não encontrada")
-      return false
-    }
-    
-    // Converter a chave pública para o formato correto
-    const applicationServerKey = urlBase64ToUint8Array(publicKey)
-    
-    // Inscrever para notificações push
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey,
-    })
-    
-    // Salvar a inscrição no servidor
-    const saveResponse = await fetch('/api/notifications/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId,
-        subscription,
-      }),
-    })
-    
-    const result = await saveResponse.json()
-    return result.success === true
-  } catch (error) {
-    console.error("Erro ao inscrever para notificações push:", error)
-    return false
-  }
-}
-
-// Cancelar inscrição de notificações push
-export async function unsubscribeFromPushNotifications(userId: string): Promise<boolean> {
-  if (typeof window === 'undefined') return false
-  
-  try {
-    const registration = await navigator.serviceWorker.ready
-    const subscription = await registration.pushManager.getSubscription()
-    
-    if (!subscription) {
-      return true // Já não está inscrito
-    }
-    
-    // Cancelar inscrição no navegador
-    const success = await subscription.unsubscribe()
-    
-    if (success) {
-      // Remover inscrição do servidor
-      // Aqui precisaríamos de uma API para remover a inscrição, mas podemos
-      // simplesmente atualizar as preferências do usuário para desativar push
-      await saveNotificationPreferences(userId, {
-        ...(await getNotificationPreferences(userId) || {}),
-        pushEnabled: false,
-      } as NotificationPreferences)
-    }
-    
-    return success
-  } catch (error) {
-    console.error("Erro ao cancelar inscrição de notificações push:", error)
-    return false
-  }
-}
-
-// Função auxiliar para converter string base64 para Uint8Array
-// Necessário para a chave de aplicação do push
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-  
-  const rawData = window.atob(base64)
-  const outputArray = new Uint8Array(rawData.length)
-  
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i)
-  }
-  
-  return outputArray
 }
