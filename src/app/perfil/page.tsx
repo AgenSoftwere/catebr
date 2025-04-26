@@ -231,10 +231,10 @@ export default function PerfilPage() {
                     <h3 className={styles.articleTitle}>{article.title}</h3>
                     <div className={styles.articleMeta}>
                       <span className={styles.articleType}>
-                        {article.type === "article" as ArticleType && "Artigo"}
+                      {article.type === "article" as ArticleType && "Artigo"}
                         {article.type === ("news" as ArticleType) && "Notícia"}
-                        {article.type === "reflection" as ArticleType && "Reflexão"}
-                        {article.type === "testimony" as ArticleType && "Depoimento"}
+                        {article.type === ("reflection" as ArticleType) && "Reflexão"}
+                        {article.type === ("testimony" as ArticleType) && "Depoimento"}
                       </span>
                       <span className={styles.articleDate}>{formatDate(article.createdAt)}</span>
                     </div>
@@ -271,9 +271,6 @@ export default function PerfilPage() {
           <div className={styles.menuList}>
             <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/editar")}>
               Editar perfil
-            </Button>
-            <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/notificacoes")}>
-              Preferências de notificação
             </Button>
             <Button variant="ghost" className={styles.menuItem} onClick={() => router.push("/perfil/senha")}>
               Alterar senha
