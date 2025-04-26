@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { User, Church, UserPlus, LogIn, Camera, BookOpen, LogOut } from "lucide-react"
+import { User, Church, UserPlus, LogIn, Camera, BookOpen, LogOut } from 'lucide-react'
 import Link from "next/link"
 import styles from "./page.module.css"
 import { VersionBadge } from "@/components/version-badge"
@@ -231,10 +231,10 @@ export default function PerfilPage() {
                     <h3 className={styles.articleTitle}>{article.title}</h3>
                     <div className={styles.articleMeta}>
                       <span className={styles.articleType}>
-                        {article.type === ("article" as ArticleType) && "Artigo"}
+                        {article.type === "article" as ArticleType && "Artigo"}
                         {article.type === ("news" as ArticleType) && "Notícia"}
-                        {article.type === ("reflection" as ArticleType) && "Reflexão"}
-                        {article.type === ("testimony" as ArticleType) && "Depoimento"}
+                        {article.type === "reflection" as ArticleType && "Reflexão"}
+                        {article.type === "testimony" as ArticleType && "Depoimento"}
                       </span>
                       <span className={styles.articleDate}>{formatDate(article.createdAt)}</span>
                     </div>

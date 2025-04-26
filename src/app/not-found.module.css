@@ -1,0 +1,200 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    text-align: center;
+  }
+  
+  .content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .errorCode {
+    font-size: 8rem;
+    font-weight: 700;
+    color: #6d28d9;
+    line-height: 1;
+    margin-bottom: 1rem;
+    text-shadow: 3px 3px 0 rgba(109, 40, 217, 0.2);
+  }
+  
+  .title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+  }
+  
+  .description {
+    font-size: 1.125rem;
+    color: #4b5563;
+    margin-bottom: 2rem;
+  }
+  
+  .illustration {
+    position: relative;
+    height: 180px;
+    margin: 2rem 0;
+  }
+  
+  .church {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    width: 120px;
+    height: 140px;
+  }
+  
+  .churchBody {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 70%;
+    background-color: #f3f4f6;
+    border: 2px solid #6d28d9;
+    border-radius: 4px;
+  }
+  
+  .churchRoof {
+    position: absolute;
+    bottom: 70%;
+    width: 110%;
+    height: 30px;
+    background-color: #6d28d9;
+    left: -5%;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  
+  .churchTower {
+    position: absolute;
+    bottom: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 60px;
+    background-color: #f3f4f6;
+    border: 2px solid #6d28d9;
+    border-bottom: none;
+    z-index: -1;
+  }
+  
+  .churchCross {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 20px;
+    background-color: #6d28d9;
+  }
+  
+  .churchCross::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: -8px;
+    width: 20px;
+    height: 4px;
+    background-color: #6d28d9;
+  }
+  
+  .churchDoor {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 40px;
+    background-color: #6d28d9;
+    border-radius: 15px 15px 0 0;
+  }
+  
+  .churchWindow {
+    position: absolute;
+    bottom: 40%;
+    width: 20px;
+    height: 20px;
+    background-color: #6d28d9;
+    border-radius: 50%;
+  }
+  
+  .churchWindow:first-of-type {
+    left: 20%;
+  }
+  
+  .churchWindow:last-of-type {
+    right: 20%;
+  }
+  
+  .shadow {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+  }
+  
+  .suggestions {
+    margin: 2rem 0;
+    text-align: left;
+  }
+  
+  .suggestions p {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  
+  .suggestions ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    color: #4b5563;
+  }
+  
+  .suggestions li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .button {
+    min-width: 120px;
+  }
+  
+  @media (max-width: 640px) {
+    .errorCode {
+      font-size: 6rem;
+    }
+  
+    .title {
+      font-size: 1.5rem;
+    }
+  
+    .description {
+      font-size: 1rem;
+    }
+  
+    .actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .button {
+      width: 100%;
+    }
+  }
+  
